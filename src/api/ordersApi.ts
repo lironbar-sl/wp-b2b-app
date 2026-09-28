@@ -66,7 +66,7 @@ export async function submitOrder(
       items: orderItems,
       subtotal,
       totalAmount: subtotal,
-      currency: 'USD',
+      currency: 'ILS',
       deliveryEstimate,
       shippingAddress,
       submittedAt: now,

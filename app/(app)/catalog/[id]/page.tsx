@@ -21,8 +21,8 @@ function getCategoryEmoji(category: string): string {
   return '📦';
 }
 
-function formatPrice(amount: number, currency = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
+function formatPrice(amount: number, currency = 'ILS'): string {
+  return new Intl.NumberFormat('he-IL', {
     style: 'currency',
     currency,
     minimumFractionDigits: 2,

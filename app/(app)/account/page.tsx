@@ -15,9 +15,9 @@ import { useOrderHistory } from '@/features/orders/useOrders';
 import { AppShell } from '@/components/layout/AppShell';
 
 function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('he-IL', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'ILS',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);

@@ -20,9 +20,9 @@ function getCategoryEmoji(category: string): string {
 }
 
 function formatPrice(amount: number, currency: string): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('he-IL', {
     style: 'currency',
-    currency: currency || 'USD',
+    currency: currency || 'ILS',
     minimumFractionDigits: 2,
   }).format(amount);
 }

@@ -15,8 +15,8 @@ function formatDate(dateStr: string): string {
   });
 }
 
-function formatCurrency(amount: number, currency = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
+function formatCurrency(amount: number, currency = 'ILS'): string {
+  return new Intl.NumberFormat('he-IL', {
     style: 'currency',
     currency,
     minimumFractionDigits: 2,
