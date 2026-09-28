@@ -24,7 +24,7 @@ function formatCurrency(amount: number): string {
 }
 
 function formatMemberSince(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
+  return new Date(dateStr).toLocaleDateString('he-IL', {
     month: 'short',
     year: 'numeric',
   });
@@ -118,7 +118,7 @@ export default function AccountPage() {
     return (
       <AppShell activeTab="account">
         <div className="flex items-center justify-center py-24">
-          <p className="text-sm text-slate-500">Not signed in.</p>
+          <p className="text-sm text-slate-500">לא מחובר.</p>
         </div>
       </AppShell>
     );
@@ -146,21 +146,21 @@ export default function AccountPage() {
         <div className="flex items-center justify-around bg-white/10 rounded-2xl py-3 px-2">
           <div className="flex flex-col items-center gap-0.5">
             <span className="text-white font-bold text-lg tabular-nums">{orderCount}</span>
-            <span className="text-slate-400 text-xs">Orders</span>
+            <span className="text-slate-400 text-xs">הזמנות</span>
           </div>
           <div className="w-px h-8 bg-white/20" />
           <div className="flex flex-col items-center gap-0.5">
             <span className="text-white font-bold text-lg tabular-nums">
               {formatCurrency(totalSpent)}
             </span>
-            <span className="text-slate-400 text-xs">Total Spent</span>
+            <span className="text-slate-400 text-xs">סה"כ רכישות</span>
           </div>
           <div className="w-px h-8 bg-white/20" />
           <div className="flex flex-col items-center gap-0.5">
             <span className="text-white font-bold text-lg">
               {formatMemberSince(user.createdAt)}
             </span>
-            <span className="text-slate-400 text-xs">Member Since</span>
+            <span className="text-slate-400 text-xs">חבר מאז</span>
           </div>
         </div>
       </div>
@@ -168,7 +168,7 @@ export default function AccountPage() {
       {/* Sections */}
       <div className="px-4 py-5 space-y-5">
         {/* Account section */}
-        <Section title="Account">
+        <Section title="חשבון">
           <Row
             icon={<User className="w-4 h-4 text-blue-600" />}
             iconBgClass="bg-blue-100"
@@ -179,30 +179,30 @@ export default function AccountPage() {
           <Row
             icon={<Home className="w-4 h-4 text-emerald-600" />}
             iconBgClass="bg-emerald-100"
-            label="Delivery Address"
+            label="כתובת למשלוח"
             subtitle={user.companyName}
             onClick={() => {}}
           />
         </Section>
 
         {/* Orders section */}
-        <Section title="Orders">
+        <Section title="הזמנות">
           <Row
             icon={<FileText className="w-4 h-4 text-indigo-600" />}
             iconBgClass="bg-indigo-100"
-            label="Order History"
-            subtitle={`${orderCount} order${orderCount !== 1 ? 's' : ''} placed`}
+            label="היסטוריית הזמנות"
+            subtitle={`${orderCount} הזמנות`}
             onClick={() => router.push('/orders')}
           />
         </Section>
 
         {/* Support section */}
-        <Section title="Support">
+        <Section title="תמיכה">
           <Row
             icon={<HelpCircle className="w-4 h-4 text-amber-600" />}
             iconBgClass="bg-amber-100"
-            label="Help & Support"
-            subtitle="Contact your account manager"
+            label="עזרה ותמיכה"
+            subtitle="צור קשר עם מנהל חשבונך"
             onClick={() => {}}
           />
         </Section>
@@ -212,7 +212,7 @@ export default function AccountPage() {
           <Row
             icon={<LogOut className="w-4 h-4 text-red-500" />}
             iconBgClass="bg-red-100"
-            label="Sign out"
+            label="יציאה"
             onClick={handleLogout}
             danger
           />

@@ -25,11 +25,11 @@ const STATUS_STEPS: OrderStatus[] = [
 ];
 
 const STEP_LABELS: Record<string, string> = {
-  submitted: 'Submitted',
-  approved: 'Approved',
-  preparing: 'Preparing',
-  shipped: 'Shipped',
-  delivered: 'Delivered',
+  submitted: 'הוגשה',
+  approved: 'אושרה',
+  preparing: 'בהכנה',
+  shipped: 'נשלחה',
+  delivered: 'נמסרה',
 };
 
 function getStepIndex(status: OrderStatus): number {
@@ -46,7 +46,7 @@ function formatCurrency(amount: number, currency = 'USD'): string {
 }
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
+  return new Date(dateStr).toLocaleDateString('he-IL', {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
@@ -88,7 +88,7 @@ export default function OrderDetailPage({ params }: PageProps) {
       queryClient.invalidateQueries({ queryKey: ['order-history'] });
     } catch (err) {
       setCancelError(
-        (err as { message?: string })?.message ?? 'Failed to cancel order. Please try again.',
+        (err as { message?: string })?.message ?? 'ביטול ההזמנה נכשל. אנא נסה שוב.',
       );
     } finally {
       setIsCancelling(false);
@@ -105,12 +105,12 @@ export default function OrderDetailPage({ params }: PageProps) {
           <button
             type="button"
             onClick={() => router.back()}
-            aria-label="Go back"
+            aria-label="חזרה"
             className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20 active:bg-white/30 transition-colors duration-150"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-xl font-bold text-white">Order Details</h1>
+          <h1 className="text-xl font-bold text-white">פרטי הזמנה</h1>
         </div>
       </div>
 
@@ -125,9 +125,9 @@ export default function OrderDetailPage({ params }: PageProps) {
         {/* Error */}
         {isError && (
           <ErrorMessage
-            title="Could not load order"
+            title="לא ניתן לטעון את ההזמנה"
             message={
-              (error as { message?: string })?.message ?? 'Please try again.'
+              (error as { message?: string })?.message ?? 'אנא נסה שוב.'
             }
             onRetry={() => refetch()}
           />
@@ -152,7 +152,7 @@ export default function OrderDetailPage({ params }: PageProps) {
             {order.status !== 'cancelled' && (
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">
-                  Progress
+                  התקדמות
                 </p>
                 <div className="flex items-center">
                   {STATUS_STEPS.map((step, idx) => {
@@ -217,7 +217,7 @@ export default function OrderDetailPage({ params }: PageProps) {
             {/* Items */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">
-                Items
+                פריטים
               </p>
               <div className="space-y-3">
                 {order.items.map((item) => {
@@ -236,7 +236,7 @@ export default function OrderDetailPage({ params }: PageProps) {
                         {variantSummary && (
                           <p className="text-xs text-slate-500">{variantSummary}</p>
                         )}
-                        <p className="text-xs text-slate-500">Qty: {item.quantity}</p>
+                        <p className="text-xs text-slate-500">כמות: {item.quantity}</p>
                       </div>
                       <span className="text-sm font-bold text-slate-800 tabular-nums">
                         {formatCurrency(item.lineTotal, order.currency)}
@@ -250,17 +250,17 @@ export default function OrderDetailPage({ params }: PageProps) {
             {/* Order total */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-500">Subtotal</span>
+                <span className="text-slate-500">סכום ביניים</span>
                 <span className="font-medium text-slate-700">
                   {formatCurrency(order.subtotal, order.currency)}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-500">Shipping</span>
-                <span className="font-medium text-emerald-600">Free</span>
+                <span className="text-slate-500">משלוח</span>
+                <span className="font-medium text-emerald-600">חינם</span>
               </div>
               <div className="border-t border-slate-100 pt-2 flex items-center justify-between">
-                <span className="text-sm font-semibold text-slate-800">Total</span>
+                <span className="text-sm font-semibold text-slate-800">סה"כ</span>
                 <span className="text-base font-bold text-slate-800 tabular-nums">
                   {formatCurrency(order.totalAmount, order.currency)}
                 </span>
@@ -271,7 +271,7 @@ export default function OrderDetailPage({ params }: PageProps) {
             <div className="flex items-center gap-3 bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3">
               <Truck className="w-5 h-5 text-blue-500 flex-shrink-0" />
               <div>
-                <p className="text-xs font-semibold text-blue-700">Delivery Estimate</p>
+                <p className="text-xs font-semibold text-blue-700">זמן אספקה משוער</p>
                 <p className="text-xs text-blue-600">{order.deliveryEstimate.label}</p>
               </div>
             </div>
@@ -293,7 +293,7 @@ export default function OrderDetailPage({ params }: PageProps) {
                   {isCancelling && (
                     <span className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
                   )}
-                  {isCancelling ? 'Cancelling…' : 'Cancel Order'}
+                  {isCancelling ? 'מבטל...' : 'בטל הזמנה'}
                 </button>
               </div>
             )}

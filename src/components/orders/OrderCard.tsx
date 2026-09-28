@@ -8,7 +8,7 @@ interface OrderCardProps {
 }
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
+  return new Date(dateStr).toLocaleDateString('he-IL', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -47,7 +47,7 @@ export function OrderCard({ order, onClick }: OrderCardProps) {
         </div>
         <div className="flex items-center justify-between gap-2">
           <span className="text-xs text-slate-500">
-            {formatDate(order.createdAt)} · {itemCount} unit{itemCount !== 1 ? 's' : ''}
+            {formatDate(order.createdAt)} · {itemCount} יחידות
           </span>
           <span className="text-sm font-semibold text-slate-700">
             {formatCurrency(order.totalAmount, order.currency)}

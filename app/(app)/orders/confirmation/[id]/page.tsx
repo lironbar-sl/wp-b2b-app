@@ -74,8 +74,8 @@ export default function OrderConfirmationPage({ params }: PageProps) {
           </svg>
         </div>
 
-        <h1 className="text-2xl font-bold text-white mb-1.5">Order Confirmed</h1>
-        <p className="text-slate-400 text-sm mb-4">We&apos;ve received your order</p>
+        <h1 className="text-2xl font-bold text-white mb-1.5">הזמנה התקבלה</h1>
+        <p className="text-slate-400 text-sm mb-4">קיבלנו את ההזמנה שלך</p>
 
         {/* Order number pill */}
         {order && (
@@ -100,7 +100,7 @@ export default function OrderConfirmationPage({ params }: PageProps) {
             {/* Order summary */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">
-                Order Summary
+                סיכום הזמנה
               </p>
               <div className="space-y-3">
                 {order.items.map((item) => (
@@ -112,7 +112,7 @@ export default function OrderConfirmationPage({ params }: PageProps) {
                       <p className="text-sm font-medium text-slate-800 truncate">
                         {item.productName}
                       </p>
-                      <p className="text-xs text-slate-500">Qty: {item.quantity}</p>
+                      <p className="text-xs text-slate-500">כמות: {item.quantity}</p>
                     </div>
                     <span className="text-sm font-semibold text-slate-800 tabular-nums">
                       {formatCurrency(item.lineTotal, order.currency)}
@@ -121,7 +121,7 @@ export default function OrderConfirmationPage({ params }: PageProps) {
                 ))}
               </div>
               <div className="border-t border-slate-100 mt-3 pt-3 flex items-center justify-between">
-                <span className="text-sm font-semibold text-slate-800">Total</span>
+                <span className="text-sm font-semibold text-slate-800">סה"כ</span>
                 <span className="text-base font-bold text-slate-800 tabular-nums">
                   {formatCurrency(order.totalAmount, order.currency)}
                 </span>
@@ -132,7 +132,7 @@ export default function OrderConfirmationPage({ params }: PageProps) {
             <div className="flex items-center gap-3 bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3">
               <Truck className="w-5 h-5 text-blue-500 flex-shrink-0" />
               <div>
-                <p className="text-xs font-semibold text-blue-700">Estimated Delivery</p>
+                <p className="text-xs font-semibold text-blue-700">זמן אספקה משוער</p>
                 <p className="text-xs text-blue-600">{order.deliveryEstimate.label}</p>
               </div>
             </div>
@@ -141,8 +141,8 @@ export default function OrderConfirmationPage({ params }: PageProps) {
             <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3">
               <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
               <div>
-                <p className="text-xs font-semibold text-emerald-700">Status</p>
-                <p className="text-xs text-emerald-600">Submitted — awaiting approval</p>
+                <p className="text-xs font-semibold text-emerald-700">סטטוס</p>
+                <p className="text-xs text-emerald-600">הוגשה — ממתינה לאישור</p>
               </div>
             </div>
           </>
@@ -156,14 +156,14 @@ export default function OrderConfirmationPage({ params }: PageProps) {
           onClick={() => router.push('/orders')}
           className="flex-1 h-12 border border-slate-200 bg-white text-slate-700 font-semibold text-sm rounded-2xl flex items-center justify-center hover:bg-slate-50 active:bg-slate-100 transition-colors duration-150"
         >
-          View Orders
+          הזמנות שלי
         </button>
         <button
           type="button"
           onClick={() => router.push('/catalog')}
           className="flex-1 h-12 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-semibold text-sm rounded-2xl flex items-center justify-center transition-colors duration-150"
         >
-          Continue Ordering
+          המשך הזמנה
         </button>
       </div>
     </div>

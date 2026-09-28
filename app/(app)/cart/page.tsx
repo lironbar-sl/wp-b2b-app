@@ -69,14 +69,14 @@ function CartItemRow({ item, onRemove, onUpdateQuantity }: CartItemRowProps) {
           {variantSummary && (
             <p className="text-xs text-slate-500 mt-0.5">{variantSummary}</p>
           )}
-          <p className="text-xs text-slate-500 mt-0.5">{formatCurrency(item.unitPrice)} each</p>
+          <p className="text-xs text-slate-500 mt-0.5">{formatCurrency(item.unitPrice)} ליחידה</p>
         </div>
 
         {/* Delete */}
         <button
           type="button"
           onClick={() => onRemove(item.id)}
-          aria-label={`Remove ${item.productName}`}
+          aria-label={`הסר ${item.productName}`}
           className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-red-400 hover:bg-red-50 active:bg-red-100 transition-colors duration-150"
         >
           <Trash2 className="w-4 h-4" />
@@ -90,7 +90,7 @@ function CartItemRow({ item, onRemove, onUpdateQuantity }: CartItemRowProps) {
           <button
             type="button"
             onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-            aria-label="Decrease quantity"
+            aria-label="הפחת כמות"
             className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 active:bg-slate-100 transition-colors duration-150 disabled:opacity-40"
             disabled={item.quantity <= 1}
           >
@@ -102,7 +102,7 @@ function CartItemRow({ item, onRemove, onUpdateQuantity }: CartItemRowProps) {
           <button
             type="button"
             onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-            aria-label="Increase quantity"
+            aria-label="הגדל כמות"
             className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 active:bg-slate-100 transition-colors duration-150"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -151,10 +151,10 @@ export default function CartPage() {
       {/* Sticky header */}
       <div className="sticky top-0 z-30 bg-[#0F172A] px-4 pt-12 pb-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-white">Current Order</h1>
+          <h1 className="text-xl font-bold text-white">הזמנה נוכחית</h1>
           {itemCount > 0 && (
             <span className="bg-blue-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-              {itemCount} unit{itemCount !== 1 ? 's' : ''}
+              {itemCount} יחידות
             </span>
           )}
         </div>
@@ -166,7 +166,7 @@ export default function CartPage() {
           <div className="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-xl px-3.5 py-2.5">
             <Truck className="w-4 h-4 text-blue-500 flex-shrink-0" />
             <p className="text-xs text-blue-700 font-medium">
-              Estimated delivery: <span className="font-semibold">{deliveryEstimate.label}</span>
+              זמן אספקה משוער: <span className="font-semibold">{deliveryEstimate.label}</span>
             </p>
           </div>
         )}
@@ -175,10 +175,10 @@ export default function CartPage() {
         {items.length === 0 && (
           <EmptyState
             icon={<ShoppingBag className="w-8 h-8" />}
-            title="Your order is empty"
-            description="Browse the catalog to add products to your order."
+            title="ההזמנה ריקה"
+            description="עיין בקטלוג והוסף מוצרים להזמנה."
             action={{
-              label: 'Browse Catalog',
+              label: 'לדף הקטלוג',
               onClick: () => router.push('/catalog'),
             }}
             className="py-20"
@@ -203,22 +203,21 @@ export default function CartPage() {
             <div className="bg-[#0F172A] rounded-2xl p-5 space-y-3">
               <div className="flex items-center justify-between text-sm text-slate-400">
                 <span>
-                  {uniqueItemCount} item{uniqueItemCount !== 1 ? 's' : ''} ({itemCount} unit
-                  {itemCount !== 1 ? 's' : ''})
+                  {uniqueItemCount} מוצרים ({itemCount} יחידות)
                 </span>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-400">Subtotal</span>
+                  <span className="text-slate-400">סכום ביניים</span>
                   <span className="text-white font-medium">{formatCurrency(subtotal)}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-400">Shipping</span>
-                  <span className="text-emerald-400 font-medium">Free</span>
+                  <span className="text-slate-400">משלוח</span>
+                  <span className="text-emerald-400 font-medium">חינם</span>
                 </div>
               </div>
               <div className="border-t border-slate-700 pt-3 flex items-center justify-between">
-                <span className="text-white font-semibold">Total</span>
+                <span className="text-white font-semibold">סה"כ</span>
                 <span className="text-white text-xl font-bold tabular-nums">
                   {formatCurrency(subtotal)}
                 </span>
@@ -228,10 +227,10 @@ export default function CartPage() {
             {/* Error message */}
             {submitOrder.isError && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                <p className="text-sm font-semibold text-red-700">Failed to submit order</p>
+                <p className="text-sm font-semibold text-red-700">שליחת ההזמנה נכשלה</p>
                 <p className="text-xs text-red-600 mt-1">
                   {(submitOrder.error as { message?: string })?.message ??
-                    'Please try again.'}
+                    'אנא נסה שוב.'}
                 </p>
               </div>
             )}
@@ -246,7 +245,7 @@ export default function CartPage() {
               {submitOrder.isPending && (
                 <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               )}
-              {submitOrder.isPending ? 'Submitting…' : 'Submit Order'}
+              {submitOrder.isPending ? 'שולח...' : 'שלח הזמנה'}
             </button>
           </>
         )}

@@ -15,10 +15,10 @@ import type { SortField, SortDirection } from '@/types';
 type SortOption = { field: SortField; label: string };
 
 const SORT_OPTIONS: SortOption[] = [
-  { field: 'name', label: 'Name' },
-  { field: 'price', label: 'Price' },
-  { field: 'stock', label: 'Stock' },
-  { field: 'deliveryTime', label: 'Delivery' },
+  { field: 'name', label: 'שם' },
+  { field: 'price', label: 'מחיר' },
+  { field: 'stock', label: 'מלאי' },
+  { field: 'deliveryTime', label: 'משלוח' },
 ];
 
 export default function CatalogPage() {
@@ -59,12 +59,12 @@ export default function CatalogPage() {
       <div className="sticky top-0 z-30 bg-[#0F172A]">
         {/* Title row */}
         <div className="flex items-center justify-between px-4 pt-5 pb-3">
-          <h1 className="text-xl font-bold text-white tracking-tight">Catalog</h1>
+          <h1 className="text-xl font-bold text-white tracking-tight">קטלוג</h1>
           <button
             type="button"
             onClick={() => router.push('/cart')}
             className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 transition-colors"
-            aria-label={`Cart, ${cartCount} items`}
+            aria-label={`עגלה, ${cartCount} פריטים`}
           >
             <ShoppingCart className="w-5 h-5 text-white" />
             {cartCount > 0 && (
@@ -83,14 +83,14 @@ export default function CatalogPage() {
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search products…"
+              placeholder="חיפוש מוצרים..."
               className="flex-1 bg-transparent text-sm text-white placeholder-slate-400 outline-none"
             />
             {search.length > 0 && (
               <button
                 type="button"
                 onClick={() => setSearch('')}
-                aria-label="Clear search"
+                aria-label="נקה חיפוש"
                 className="text-slate-400 hover:text-slate-300 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -180,16 +180,16 @@ export default function CatalogPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0016.803 15.803z" />
               </svg>
             }
-            title="No products found"
+            title="לא נמצאו מוצרים"
             description={
               search
-                ? `No results for "${search}". Try a different search or category.`
-                : 'No products in this category.'
+                ? `אין תוצאות עבור "${search}". נסה חיפוש או קטגוריה אחרת.`
+                : 'אין מוצרים בקטגוריה זו.'
             }
             action={
               search || selectedCategory !== 'All'
                 ? {
-                    label: 'Clear filters',
+                    label: 'נקה סינון',
                     onClick: () => {
                       setSearch('');
                       setSelectedCategory('All');
@@ -203,7 +203,7 @@ export default function CatalogPage() {
         {!isLoading && !isError && products.length > 0 && (
           <>
             <p className="text-xs text-slate-400 mb-3">
-              {data?.total ?? products.length} product{(data?.total ?? products.length) !== 1 ? 's' : ''}
+              {data?.total ?? products.length} מוצרים
             </p>
             <div className="grid grid-cols-2 gap-3">
               {products.map((product) => (

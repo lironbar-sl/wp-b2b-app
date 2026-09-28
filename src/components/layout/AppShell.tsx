@@ -124,10 +124,10 @@ interface NavTab {
 }
 
 const NAV_TABS: NavTab[] = [
-  { key: 'catalog', label: 'Catalog', href: '/catalog' },
-  { key: 'cart', label: 'Cart', href: '/cart' },
-  { key: 'orders', label: 'History', href: '/orders' },
-  { key: 'account', label: 'Account', href: '/account' },
+  { key: 'catalog', label: 'קטלוג', href: '/catalog' },
+  { key: 'cart', label: 'הזמנה', href: '/cart' },
+  { key: 'orders', label: 'היסטוריה', href: '/orders' },
+  { key: 'account', label: 'חשבון', href: '/account' },
 ];
 
 function resolveActiveTab(pathname: string): ActiveTab {

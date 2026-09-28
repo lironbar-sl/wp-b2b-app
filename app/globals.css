@@ -47,3 +47,7 @@ body {
 * {
   box-sizing: border-box;
 }
+
+[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}

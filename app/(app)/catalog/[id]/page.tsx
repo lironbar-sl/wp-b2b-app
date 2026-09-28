@@ -129,7 +129,7 @@ export default function ProductDetailPage() {
         >
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
-        <h1 className="text-base font-semibold text-white truncate flex-1">Product Details</h1>
+        <h1 className="text-base font-semibold text-white truncate flex-1">פרטי מוצר</h1>
       </div>
 
       {/* Scrollable body */}
@@ -213,7 +213,7 @@ export default function ProductDetailPage() {
 
           {/* Quantity selector */}
           <div>
-            <p className="text-sm font-semibold text-slate-700 mb-2">Quantity</p>
+            <p className="text-sm font-semibold text-slate-700 mb-2">כמות</p>
             <div className="flex items-center gap-3">
               <QuantitySelector
                 value={quantity}
@@ -222,7 +222,7 @@ export default function ProductDetailPage() {
                 max={maxQty}
               />
               <span className="text-xs text-slate-400">
-                Min: {minQty} · Max: {maxQty}
+                מינ׳: {minQty} · מקס׳: {maxQty}
               </span>
             </div>
           </div>
@@ -231,7 +231,7 @@ export default function ProductDetailPage() {
           <div className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-3 border border-slate-200">
             <Truck className="w-5 h-5 text-slate-400 flex-shrink-0" />
             <div>
-              <p className="text-xs font-semibold text-slate-700">Estimated delivery</p>
+              <p className="text-xs font-semibold text-slate-700">זמן אספקה משוער</p>
               <p className="text-xs text-slate-500 mt-0.5">{product.deliveryEstimate.label}</p>
             </div>
           </div>
@@ -257,13 +257,13 @@ export default function ProductDetailPage() {
           {added ? (
             <>
               <CheckCircle className="w-4 h-4" />
-              Added to Order
+              נוסף להזמנה
             </>
           ) : isOutOfStock ? (
-            'Out of Stock'
+            'אזל מהמלאי'
           ) : (
             <>
-              Add to Order · {formatPrice(totalPrice, product.currency)}
+              הוסף להזמנה · {formatPrice(totalPrice, product.currency)}
             </>
           )}
         </button>

@@ -17,67 +17,67 @@ function getBadgeConfig(status: BadgeStatus): BadgeConfig {
   switch (status) {
     case 'in_stock':
       return {
-        label: 'In Stock',
+        label: 'במלאי',
         containerClass: 'bg-emerald-100 text-emerald-700',
         dotClass: 'bg-emerald-500',
       };
     case 'low_stock':
       return {
-        label: 'Low Stock',
+        label: 'מלאי נמוך',
         containerClass: 'bg-amber-100 text-amber-700',
         dotClass: 'bg-amber-500',
       };
     case 'out_of_stock':
       return {
-        label: 'Out of Stock',
+        label: 'אזל מהמלאי',
         containerClass: 'bg-red-100 text-red-600',
         dotClass: 'bg-red-500',
       };
     case 'backordered':
       return {
-        label: 'Backordered',
+        label: 'הזמנה מוקדמת',
         containerClass: 'bg-indigo-100 text-indigo-700',
         dotClass: 'bg-indigo-500',
       };
     case 'submitted':
       return {
-        label: 'Submitted',
+        label: 'הוגשה',
         containerClass: 'bg-blue-100 text-blue-700',
         dotClass: 'bg-blue-500',
       };
     case 'approved':
       return {
-        label: 'Approved',
+        label: 'אושרה',
         containerClass: 'bg-emerald-100 text-emerald-700',
         dotClass: 'bg-emerald-500',
       };
     case 'preparing':
       return {
-        label: 'Preparing',
+        label: 'בהכנה',
         containerClass: 'bg-amber-100 text-amber-700',
         dotClass: 'bg-amber-500',
       };
     case 'shipped':
       return {
-        label: 'Shipped',
+        label: 'נשלחה',
         containerClass: 'bg-indigo-100 text-indigo-700',
         dotClass: 'bg-indigo-500',
       };
     case 'delivered':
       return {
-        label: 'Delivered',
+        label: 'נמסרה',
         containerClass: 'bg-green-100 text-green-800',
         dotClass: 'bg-green-600',
       };
     case 'cancelled':
       return {
-        label: 'Cancelled',
+        label: 'בוטלה',
         containerClass: 'bg-red-100 text-red-600',
         dotClass: 'bg-red-500',
       };
     case 'draft':
       return {
-        label: 'Draft',
+        label: 'טיוטה',
         containerClass: 'bg-slate-100 text-slate-600',
         dotClass: 'bg-slate-400',
       };

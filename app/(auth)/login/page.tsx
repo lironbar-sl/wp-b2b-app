@@ -8,8 +8,8 @@ import { z } from 'zod';
 import { useLogin } from '@/features/auth/useAuth';
 
 const loginSchema = z.object({
-  email: z.string().email('Enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email('יש להזין כתובת אימייל תקינה'),
+  password: z.string().min(6, 'הסיסמה חייבת להכיל לפחות 6 תווים'),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -41,7 +41,7 @@ export default function LoginPage() {
     loginMutation.error instanceof Error
       ? loginMutation.error.message
       : loginMutation.error
-      ? 'Login failed. Please try again.'
+      ? 'הכניסה נכשלה. נסה שוב.'
       : null;
 
   return (
@@ -53,8 +53,8 @@ export default function LoginPage() {
           <span className="text-white text-2xl font-black tracking-tight select-none">WP</span>
         </div>
 
-        <h1 className="text-3xl font-bold text-white text-center mb-2">Welcome back</h1>
-        <p className="text-slate-400 text-base text-center">Sign in to your B2B account</p>
+        <h1 className="text-3xl font-bold text-white text-center mb-2">ברוך הבא</h1>
+        <p className="text-slate-400 text-base text-center">כניסה לחשבון B2B שלך</p>
       </div>
 
       {/* Form section */}
@@ -64,7 +64,7 @@ export default function LoginPage() {
             {/* Email field */}
             <div className="flex flex-col gap-1.5">
               <label htmlFor="email" className="text-sm font-medium text-slate-300">
-                Email
+                אימייל
               </label>
               <input
                 id="email"
@@ -88,7 +88,7 @@ export default function LoginPage() {
             {/* Password field */}
             <div className="flex flex-col gap-1.5">
               <label htmlFor="password" className="text-sm font-medium text-slate-300">
-                Password
+                סיסמה
               </label>
               <div className="relative">
                 <input
@@ -108,7 +108,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? 'הסתר סיסמה' : 'הצג סיסמה'}
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -151,10 +151,10 @@ export default function LoginPage() {
               {loginMutation.isPending ? (
                 <>
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Signing in…
+                  מתחבר...
                 </>
               ) : (
-                'Sign In'
+                'כניסה'
               )}
             </button>
 
@@ -163,23 +163,23 @@ export default function LoginPage() {
               type="button"
               className="text-center text-sm text-slate-400 hover:text-slate-300 transition-colors"
             >
-              Forgot password?
+              שכחת סיסמה?
             </button>
           </form>
         </div>
 
         {/* Demo credentials */}
         <div className="mt-4 bg-slate-800/40 border border-slate-700/40 rounded-xl px-4 py-3">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Demo credentials</p>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">פרטי כניסה לדמו</p>
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-400">Email</span>
+              <span className="text-xs text-slate-400">אימייל</span>
               <span className="text-xs font-mono text-slate-300 bg-slate-900/60 px-2 py-0.5 rounded">
                 buyer@acmecorp.com
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-400">Password</span>
+              <span className="text-xs text-slate-400">סיסמה</span>
               <span className="text-xs font-mono text-slate-300 bg-slate-900/60 px-2 py-0.5 rounded">
                 password123
               </span>

@@ -20,7 +20,7 @@ export default function OrdersPage() {
       {/* Page title area */}
       <div className="bg-[#0F172A] px-4 pt-12 pb-4 sticky top-0 z-30">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold text-white">Orders</h1>
+          <h1 className="text-xl font-bold text-white">הזמנות</h1>
           {orderCount > 0 && (
             <span className="bg-blue-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
               {orderCount}
@@ -40,10 +40,10 @@ export default function OrdersPage() {
         {/* Error */}
         {isError && (
           <ErrorMessage
-            title="Could not load orders"
+            title="לא ניתן לטעון הזמנות"
             message={
               (error as { message?: string })?.message ??
-              'Please check your connection and try again.'
+              'בדוק את החיבור ונסה שוב.'
             }
             onRetry={() => refetch()}
             className="mt-4"
@@ -54,10 +54,10 @@ export default function OrdersPage() {
         {!isLoading && !isError && orderCount === 0 && (
           <EmptyState
             icon={<ClipboardList className="w-8 h-8" />}
-            title="No orders yet"
-            description="Start adding products to your cart and place your first order."
+            title="אין הזמנות עדיין"
+            description="הוסף מוצרים לסל ושלח את ההזמנה הראשונה שלך."
             action={{
-              label: 'Start Ordering',
+              label: 'לדף הקטלוג',
               onClick: () => router.push('/catalog'),
             }}
             className="py-20"
