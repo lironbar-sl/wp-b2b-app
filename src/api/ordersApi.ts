@@ -79,6 +79,27 @@ export async function submitOrder(
   });
 }
 
+// ─── Dispatch ─────────────────────────────────────────────────────────────────
+
+const MOCK_COURIERS = ['יוסי לוי', 'מיכאל ברק', 'דני כהן', 'אמיר שלום', 'רוני פרץ'];
+
+export async function triggerDispatch(orderId: string): Promise<void> {
+  // Simulate 3–5s to find courier
+  await new Promise(resolve => setTimeout(resolve, 3000 + Math.random() * 2000));
+
+  const order = sessionOrders.find(o => o.id === orderId);
+  if (!order || order.status !== 'submitted') return;
+
+  const courier = MOCK_COURIERS[Math.floor(Math.random() * MOCK_COURIERS.length)];
+  const etaMinutes = 22 + Math.floor(Math.random() * 18); // 22–40 min
+
+  order.status = 'dispatched';
+  order.courierName = courier;
+  order.etaMinutes = etaMinutes;
+  order.dispatchedAt = new Date().toISOString();
+  order.updatedAt = new Date().toISOString();
+}
+
 // TODO (manager/admin): add approveOrder, updateOrderStatus, fetchAllOrders (paginated) endpoints
 
 export async function cancelOrder(orderId: string): Promise<Order> {

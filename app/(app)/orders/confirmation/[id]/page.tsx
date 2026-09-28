@@ -150,21 +150,31 @@ export default function OrderConfirmationPage({ params }: PageProps) {
       </div>
 
       {/* Bottom bar */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-slate-200 px-4 py-4 flex items-center gap-3">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-slate-200 px-4 py-4 space-y-2">
         <button
           type="button"
-          onClick={() => router.push('/orders')}
-          className="flex-1 h-12 border border-slate-200 bg-white text-slate-700 font-semibold text-sm rounded-2xl flex items-center justify-center hover:bg-slate-50 active:bg-slate-100 transition-colors duration-150"
+          onClick={() => router.push(`/orders/tracking/${resolvedId}`)}
+          className="w-full h-12 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 active:from-blue-700 active:to-cyan-700 text-white font-bold text-sm rounded-2xl flex items-center justify-center gap-2 transition-all duration-150 shadow-lg shadow-blue-500/30"
         >
-          הזמנות שלי
+          <span>🛵</span>
+          עקוב אחר ההזמנה
         </button>
-        <button
-          type="button"
-          onClick={() => router.push('/catalog')}
-          className="flex-1 h-12 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-semibold text-sm rounded-2xl flex items-center justify-center transition-colors duration-150"
-        >
-          המשך הזמנה
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => router.push('/orders')}
+            className="flex-1 h-10 border border-slate-200 bg-white text-slate-600 font-semibold text-sm rounded-xl flex items-center justify-center hover:bg-slate-50 transition-colors duration-150"
+          >
+            הזמנות שלי
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push('/catalog')}
+            className="flex-1 h-10 bg-slate-100 text-slate-700 font-semibold text-sm rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors duration-150"
+          >
+            המשך הזמנה
+          </button>
+        </div>
       </div>
     </div>
   );

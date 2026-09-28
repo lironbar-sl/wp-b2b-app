@@ -45,6 +45,12 @@ function getBadgeConfig(status: BadgeStatus): BadgeConfig {
         containerClass: 'bg-blue-100 text-blue-700',
         dotClass: 'bg-blue-500',
       };
+    case 'dispatched':
+      return {
+        label: 'בדרך אליך',
+        containerClass: 'bg-cyan-100 text-cyan-700',
+        dotClass: 'bg-cyan-500',
+      };
     case 'approved':
       return {
         label: 'אושרה',

@@ -18,18 +18,14 @@ interface PageProps {
 
 const STATUS_STEPS: OrderStatus[] = [
   'submitted',
-  'approved',
-  'preparing',
-  'shipped',
+  'dispatched',
   'delivered',
 ];
 
 const STEP_LABELS: Record<string, string> = {
-  submitted: 'הוגשה',
-  approved: 'אושרה',
-  preparing: 'בהכנה',
-  shipped: 'נשלחה',
-  delivered: 'נמסרה',
+  submitted: 'הוזמן',
+  dispatched: 'בדרך',
+  delivered: 'נמסר',
 };
 
 function getStepIndex(status: OrderStatus): number {
@@ -275,6 +271,18 @@ export default function OrderDetailPage({ params }: PageProps) {
                 <p className="text-xs text-blue-600">{order.deliveryEstimate.label}</p>
               </div>
             </div>
+
+            {/* Track order — when dispatched */}
+            {order.status === 'dispatched' && (
+              <button
+                type="button"
+                onClick={() => router.push(`/orders/tracking/${order.id}`)}
+                className="w-full h-12 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold text-sm rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30"
+              >
+                <span>🛵</span>
+                עקוב אחר המשלוח בזמן אמת
+              </button>
+            )}
 
             {/* Cancel order */}
             {order.status === 'submitted' && (

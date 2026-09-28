@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchOrderHistory, fetchOrderById, submitOrder } from '../../api';
+import { fetchOrderHistory, fetchOrderById, submitOrder, triggerDispatch } from '../../api';
 import { useAuthStore, useCartStore } from '../../store';
 import type { CartItem } from '../../types';
 
@@ -17,11 +17,23 @@ export function useOrderHistory() {
   });
 }
 
-export function useOrder(orderId: string) {
+export function useOrder(orderId: string, poll = false) {
   return useQuery({
     queryKey: [ORDER_DETAIL_KEY, orderId],
     queryFn: () => fetchOrderById(orderId),
     enabled: !!orderId,
+    refetchInterval: poll ? 5000 : false,
+  });
+}
+
+export function useTriggerDispatch() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: string) => triggerDispatch(orderId),
+    onSuccess: (_data, orderId) => {
+      queryClient.invalidateQueries({ queryKey: [ORDER_DETAIL_KEY, orderId] });
+      queryClient.invalidateQueries({ queryKey: [ORDER_HISTORY_KEY] });
+    },
   });
 }
 

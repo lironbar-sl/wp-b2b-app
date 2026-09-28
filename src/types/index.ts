@@ -116,6 +116,7 @@ export type OrderStatus =
   | 'submitted'
   | 'approved'
   | 'preparing'
+  | 'dispatched'
   | 'shipped'
   | 'delivered'
   | 'cancelled';
@@ -147,6 +148,11 @@ export interface Order {
   submittedAt?: string;
   updatedAt: string;
   createdAt: string;
+  // Dispatch / courier tracking fields
+  dispatchedAt?: string;
+  etaMinutes?: number;
+  courierName?: string;
+  courierPhone?: string;
 }
 
 // ─── API Shapes ───────────────────────────────────────────────────────────────
