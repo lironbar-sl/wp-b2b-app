@@ -46,13 +46,17 @@ export interface CatalogProduct {
 
 function resolveCategory(p: ApiProduct): string {
   const name = p.name;
+  const cat = p.category.name.trim();
   // AirPods cases filed under אוזניות → כיסויים
-  if (p.category.name === 'אוזניות' && /\bcase\b/i.test(name)) return 'כיסויים';
+  if (cat === 'אוזניות' && /\bcase\b/i.test(name)) return 'כיסויים';
   // Apple Watch bands filed under שעונים חכמים → רצועות
-  if (p.category.name === 'שעונים חכמים' && /\bband\b/i.test(name)) return 'רצועות';
+  if (cat === 'שעונים חכמים' && /\bband\b/i.test(name)) return 'רצועות';
   // Apple Watch cases/glass filed under שעונים חכמים → כיסויים
-  if (p.category.name === 'שעונים חכמים' && /\b(case|glass)\b/i.test(name)) return 'כיסויים';
-  return p.category.name;
+  if (cat === 'שעונים חכמים' && /\b(case|glass)\b/i.test(name)) return 'כיסויים';
+  // Pitaka AirPods cases filed under כללי → כיסויים
+  if (cat === 'כללי' && p.supplier?.name === 'pitaka' && /airpod/i.test(name)) return 'כיסויים';
+  // Always trim trailing spaces from API category names
+  return cat;
 }
 
 function toClientProduct(p: ApiProduct): CatalogProduct {

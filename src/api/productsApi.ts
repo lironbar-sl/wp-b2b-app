@@ -27,13 +27,13 @@ function toProductListItem(p: CatalogProduct): ProductListItem {
 export async function fetchProducts(
   filters: ProductFilters = {},
 ): Promise<PaginatedResponse<ProductListItem>> {
-  const { search, category, page = 1, pageSize = 100 } = filters;
+  const { search, category, page = 1 } = filters;
 
-  // Category filtering is done client-side after reclassification, so we
-  // always fetch all whitelisted products (server-side category pre-filter
-  // would miss re-classified items, e.g. AirPods cases reclassified from
-  // אוזניות → כיסויים, or watch bands from שעונים חכמים → רצועות).
-  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+  // Always fetch all products in one shot (500 covers the full whitelisted
+  // catalog). Category filtering is client-side so that server-side
+  // reclassification (AirPods cases, watch bands, Pitaka כללי→כיסויים) is
+  // applied before filtering.
+  const params = new URLSearchParams({ page: String(page), pageSize: '500' });
   if (search) params.set('search', search);
 
   const res = await fetch(`/api/catalog?${params}`);
@@ -60,7 +60,7 @@ export async function fetchProducts(
     data: items.map(toProductListItem),
     total: items.length,
     page,
-    pageSize,
+    pageSize: 500,
     hasMore: false,
   };
 }
