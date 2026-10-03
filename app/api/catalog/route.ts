@@ -40,7 +40,8 @@ function isWhitelisted(p: ApiProduct): boolean {
   const sup = p.supplier?.name ?? '';
   return (
     CATALOG_WHITELIST.categoryIncludes.some(c => cat.includes(c)) ||
-    CATALOG_WHITELIST.supplierExact.includes(sup)
+    CATALOG_WHITELIST.supplierExact.includes(sup) ||
+    CATALOG_WHITELIST.productIds.includes(p.id)
   );
 }
 

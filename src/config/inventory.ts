@@ -51,6 +51,11 @@ export const CATEGORY_MARGIN: Record<number, number> = {
 export const CATALOG_WHITELIST = {
   categoryIncludes: ['מכשירים', 'אוזניות'],
   supplierExact: ['pitaka', 'Amazing Thing'],
+  // Product IDs to include regardless of category/supplier.
+  // Use this for specific products from מעבדה or other categories you sell.
+  productIds: [
+    '546251', // AirPods 4 ANC (supplier: KE, cat: כללי)
+  ],
 };
 
 const DEFAULT_MARGIN = 1.3;
