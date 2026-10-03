@@ -1,4 +1,4 @@
-export const TRANZILA_TERMINAL = process.env.TRANZILA_TERMINAL ?? 'sloth';
+export const TRANZILA_TERMINAL = process.env.TRANZILA_TERMINAL ?? '';
 export const TRANZILA_PASSWORD = process.env.TRANZILA_PASSWORD ?? '';
 export const TRANZILA_IFRAME_BASE = 'https://direct.tranzila.com';
 
@@ -28,6 +28,9 @@ export function buildTranzilaIframeUrl(params: {
     success_url_address: params.successUrl,
     fail_url_address: params.failUrl,
   });
+  if (TRANZILA_PASSWORD) {
+    p.set('tranzilapw', TRANZILA_PASSWORD);
+  }
   if (params.saveToken) {
     p.set('TranzilaTK', '1');
   }
