@@ -1,6 +1,7 @@
 // ─── User & Auth ────────────────────────────────────────────────────────────
 
 export type UserRole = 'customer' | 'manager' | 'admin';
+export type BusinessType = 'authorized_dealer' | 'company'; // עוסק מורשה | חברה בע"מ
 
 export interface User {
   id: string;
@@ -11,6 +12,13 @@ export interface User {
   role: UserRole;
   avatarUrl?: string;
   createdAt: string;
+  // B2B business fields
+  phone?: string;
+  businessType?: BusinessType;
+  businessId?: string;       // מספר עוסק מורשה / ח.פ
+  deliveryAddress?: string;  // כתובת רחוב
+  deliveryCity?: string;     // עיר
+  notes?: string;            // הערות לשליח
 }
 
 export interface AuthSession {
@@ -22,6 +30,20 @@ export interface AuthSession {
 export interface LoginCredentials {
   email: string;
   password: string;
+}
+
+export interface RegisterFormData {
+  firstName: string;
+  lastName: string;
+  businessName: string;
+  businessType: BusinessType;
+  businessId: string;
+  email: string;
+  phone: string;
+  deliveryAddress: string;
+  deliveryCity: string;
+  password: string;
+  confirmPassword: string;
 }
 
 // ─── Products ────────────────────────────────────────────────────────────────

@@ -165,6 +165,17 @@ export default function LoginPage() {
             >
               שכחת סיסמה?
             </button>
+
+            <div className="border-t border-slate-700 pt-2 text-center text-sm text-slate-400">
+              עסק חדש?{' '}
+              <button
+                type="button"
+                onClick={() => router.push('/register')}
+                className="text-blue-400 hover:text-blue-300 font-medium"
+              >
+                פתח חשבון B2B
+              </button>
+            </div>
           </form>
         </div>
 

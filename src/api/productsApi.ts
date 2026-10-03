@@ -1,5 +1,3 @@
-import { mockRequest } from './client';
-import { MOCK_PRODUCTS } from './mockData';
 import type {
   Product,
   ProductListItem,
@@ -7,115 +5,95 @@ import type {
   PaginatedResponse,
   DeliveryEstimate,
 } from '../types';
+import type { CatalogProduct } from '../../app/api/catalog/route';
 
-function toListItem(p: Product): ProductListItem {
+function toProductListItem(p: CatalogProduct): ProductListItem {
   return {
     id: p.id,
-    sku: p.sku,
+    sku: p.barcode || p.id,
     name: p.name,
     category: p.category,
-    imageUrl: p.imageUrl,
-    basePrice: p.basePrice,
-    currency: p.currency,
-    inventoryStatus: p.inventoryStatus,
-    stockQuantity: p.stockQuantity,
-    deliveryEstimate: p.deliveryEstimate,
-    isActive: p.isActive,
+    imageUrl: undefined,
+    basePrice: p.b2bPrice,
+    currency: 'ILS',
+    inventoryStatus: p.stock > 10 ? 'in_stock' : p.stock > 0 ? 'low_stock' : 'out_of_stock',
+    stockQuantity: p.stock,
+    deliveryEstimate: { minDays: 1, maxDays: 3, label: '1–3 ימי עסקים' },
+    isActive: true,
   };
 }
 
 export async function fetchProducts(
   filters: ProductFilters = {},
 ): Promise<PaginatedResponse<ProductListItem>> {
-  return mockRequest(() => {
-    const { search, category, inventoryStatus, sortBy, sortDirection = 'asc', page = 1, pageSize = 20 } = filters;
+  const { search, category, page = 1, pageSize = 50 } = filters;
 
-    let results = MOCK_PRODUCTS.filter(p => p.isActive);
+  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+  if (search) params.set('search', search);
+  if (category && category !== 'All') params.set('category', category);
 
-    if (search) {
-      const q = search.toLowerCase();
-      results = results.filter(
-        p =>
-          p.name.toLowerCase().includes(q) ||
-          p.sku.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          p.tags.some(t => t.toLowerCase().includes(q)),
-      );
-    }
+  const res = await fetch(`/api/catalog?${params}`);
+  if (!res.ok) throw new Error(`שגיאה בטעינת מוצרים: ${res.status}`);
 
-    if (category && category !== 'All') {
-      results = results.filter(p => p.category === category);
-    }
+  const json = await res.json() as { products: CatalogProduct[]; page: number; pageSize: number };
 
-    if (inventoryStatus) {
-      results = results.filter(p => p.inventoryStatus === inventoryStatus);
-    }
+  let items = json.products;
 
-    if (sortBy) {
-      results = [...results].sort((a, b) => {
-        let comparison = 0;
-        switch (sortBy) {
-          case 'name':
-            comparison = a.name.localeCompare(b.name);
-            break;
-          case 'price':
-            comparison = a.basePrice - b.basePrice;
-            break;
-          case 'stock':
-            comparison = b.stockQuantity - a.stockQuantity;
-            break;
-          case 'deliveryTime':
-            comparison = a.deliveryEstimate.minDays - b.deliveryEstimate.minDays;
-            break;
-        }
-        return sortDirection === 'desc' ? -comparison : comparison;
-      });
-    }
+  // Client-side search fallback (the API may not support free-text search)
+  if (search) {
+    const q = search.toLowerCase();
+    items = items.filter(
+      p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.barcode?.includes(q),
+    );
+  }
 
-    const total = results.length;
-    const start = (page - 1) * pageSize;
-    const paginated = results.slice(start, start + pageSize).map(toListItem);
-
-    return {
-      data: paginated,
-      total,
-      page,
-      pageSize,
-      hasMore: start + pageSize < total,
-    };
-  });
+  return {
+    data: items.map(toProductListItem),
+    total: items.length,
+    page,
+    pageSize,
+    hasMore: items.length === pageSize,
+  };
 }
 
 export async function fetchProductById(id: string): Promise<Product> {
-  return mockRequest(() => {
-    const product = MOCK_PRODUCTS.find(p => p.id === id);
-    if (!product) {
-      throw { code: 'NOT_FOUND', message: 'Product not found.' };
-    }
-    return product;
-  });
+  const res = await fetch(`/api/catalog?pageSize=200`);
+  if (!res.ok) throw new Error('Product not found');
+
+  const json = await res.json() as { products: CatalogProduct[] };
+  const found = json.products.find(p => p.id === id);
+  if (!found) throw { code: 'NOT_FOUND', message: 'מוצר לא נמצא.' };
+
+  return {
+    id: found.id,
+    sku: found.barcode || found.id,
+    name: found.name,
+    description: found.description,
+    category: found.category,
+    imageUrl: undefined,
+    basePrice: found.b2bPrice,
+    currency: 'ILS',
+    inventoryStatus: found.stock > 10 ? 'in_stock' : found.stock > 0 ? 'low_stock' : 'out_of_stock',
+    stockQuantity: found.stock,
+    variantGroups: [],
+    deliveryEstimate: { minDays: 1, maxDays: 3, label: '1–3 ימי עסקים' },
+    tags: [found.category],
+    isActive: true,
+    minOrderQuantity: 1,
+    maxOrderQuantity: found.stock,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
 }
 
 export async function calculateDeliveryEstimate(
-  productId: string,
+  _productId: string,
   quantity: number,
 ): Promise<DeliveryEstimate> {
-  return mockRequest(() => {
-    const product = MOCK_PRODUCTS.find(p => p.id === productId);
-    if (!product) throw { code: 'NOT_FOUND', message: 'Product not found.' };
-
-    // Larger quantities push the estimate out slightly
-    let { minDays, maxDays } = product.deliveryEstimate;
-    if (quantity > 100) { minDays += 1; maxDays += 2; }
-    if (quantity > 500) { minDays += 2; maxDays += 3; }
-
-    const label =
-      minDays === maxDays
-        ? `${minDays} business day${minDays !== 1 ? 's' : ''}`
-        : `${minDays}–${maxDays} business days`;
-
-    return { minDays, maxDays, label };
-  });
+  let minDays = 1;
+  let maxDays = 3;
+  if (quantity > 100) { minDays += 1; maxDays += 1; }
+  if (quantity > 500) { minDays += 1; maxDays += 2; }
+  const label = `${minDays}–${maxDays} ימי עסקים`;
+  return { minDays, maxDays, label };
 }
-
-// TODO (manager/admin): add createProduct, updateProduct, updateInventory endpoints

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { paymentResults } from '../notify/route';
+import { paymentResults } from '../store';
 
 export async function GET(req: NextRequest) {
   const orderId = new URL(req.url).searchParams.get('orderId');
