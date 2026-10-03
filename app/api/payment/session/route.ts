@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { buildTranzilaIframeUrl, TRANZILA_TERMINAL, TRANZILA_PASSWORD } from '@/config/payment';
+import { buildTranzilaIframeUrl, TRANZILA_TERMINAL } from '@/config/payment';
 
 export async function POST(req: NextRequest) {
   const { orderId, amount } = await req.json();
@@ -9,8 +9,8 @@ export async function POST(req: NextRequest) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
-  if (!TRANZILA_TERMINAL || !TRANZILA_PASSWORD) {
-    // Demo mode — credentials not yet configured
+  if (!TRANZILA_TERMINAL) {
+    // Demo mode — terminal name not configured
     return NextResponse.json({
       mode: 'demo',
       iframeUrl: null,
