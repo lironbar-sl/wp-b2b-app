@@ -33,7 +33,7 @@ export default function CatalogPage() {
   const cartCount = useCartStore(selectCartCount);
 
   const [search, setSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('מכשירים');
   const [sortBy, setSortBy] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [page, setPage] = useState(1);
