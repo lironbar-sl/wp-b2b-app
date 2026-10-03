@@ -230,8 +230,8 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {/* Sticky bottom bar */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-slate-200 px-4 py-4 z-40">
+      {/* Sticky bottom bar — sits above the app nav (h-16) */}
+      <div className="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-slate-200 px-4 py-4 z-50">
         <button
           type="button"
           disabled={isOutOfStock || added}
