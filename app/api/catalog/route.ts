@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
     page_num: page,
     page_size: pageSize,
     branchId: String(MAIN_BRANCH_ID),
-    stockMode: 'true', // only products with stock > 0
+    stockMode: '1', // only products with stock > 0
   });
   if (category) params.set('category', category);
   if (search) params.set('search', search);
