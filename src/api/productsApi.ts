@@ -26,7 +26,7 @@ function toProductListItem(p: CatalogProduct): ProductListItem {
 export async function fetchProducts(
   filters: ProductFilters = {},
 ): Promise<PaginatedResponse<ProductListItem>> {
-  const { search, category, page = 1, pageSize = 50 } = filters;
+  const { search, category, page = 1, pageSize = 100 } = filters;
 
   const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
   if (search) params.set('search', search);
@@ -35,7 +35,7 @@ export async function fetchProducts(
   const res = await fetch(`/api/catalog?${params}`);
   if (!res.ok) throw new Error(`שגיאה בטעינת מוצרים: ${res.status}`);
 
-  const json = await res.json() as { products: CatalogProduct[]; page: number; pageSize: number };
+  const json = await res.json() as { products: CatalogProduct[]; page: number; pageSize: number; total: number; hasMore: boolean };
 
   let items = json.products;
 
@@ -49,15 +49,15 @@ export async function fetchProducts(
 
   return {
     data: items.map(toProductListItem),
-    total: items.length,
+    total: json.total ?? items.length,
     page,
     pageSize,
-    hasMore: items.length === pageSize,
+    hasMore: json.hasMore ?? (items.length === pageSize),
   };
 }
 
 export async function fetchProductById(id: string): Promise<Product> {
-  const res = await fetch(`/api/catalog?pageSize=200`);
+  const res = await fetch(`/api/catalog?pageSize=500`);
   if (!res.ok) throw new Error('Product not found');
 
   const json = await res.json() as { products: CatalogProduct[] };

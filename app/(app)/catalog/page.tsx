@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShoppingCart, Search } from 'lucide-react';
 import { useProducts } from '@/features/products/useProducts';
 import { useCartStore, selectCartCount } from '@/store/cartStore';
+import type { ProductListItem } from '@/types';
 
 const PRODUCT_CATEGORIES = [
   'All',
@@ -27,6 +28,8 @@ const SORT_OPTIONS: SortOption[] = [
   { field: 'deliveryTime', label: 'משלוח' },
 ];
 
+const PAGE_SIZE = 100;
+
 export default function CatalogPage() {
   const router = useRouter();
   const cartCount = useCartStore(selectCartCount);
@@ -35,6 +38,9 @@ export default function CatalogPage() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortBy, setSortBy] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [page, setPage] = useState(1);
+  const [allProducts, setAllProducts] = useState<ProductListItem[]>([]);
+  const prevFiltersRef = useRef({ search, selectedCategory, sortBy, sortDirection });
 
   const filters = useMemo(
     () => ({
@@ -42,11 +48,42 @@ export default function CatalogPage() {
       category: selectedCategory === 'All' ? undefined : selectedCategory,
       sortBy,
       sortDirection,
+      page,
+      pageSize: PAGE_SIZE,
     }),
-    [search, selectedCategory, sortBy, sortDirection],
+    [search, selectedCategory, sortBy, sortDirection, page],
   );
 
   const { data, isLoading, isError, error, refetch } = useProducts(filters);
+
+  // Reset pages when filters change (not page itself)
+  useEffect(() => {
+    const prev = prevFiltersRef.current;
+    if (
+      prev.search !== search ||
+      prev.selectedCategory !== selectedCategory ||
+      prev.sortBy !== sortBy ||
+      prev.sortDirection !== sortDirection
+    ) {
+      prevFiltersRef.current = { search, selectedCategory, sortBy, sortDirection };
+      setPage(1);
+      setAllProducts([]);
+    }
+  }, [search, selectedCategory, sortBy, sortDirection]);
+
+  // Accumulate products across pages
+  useEffect(() => {
+    if (!data?.data) return;
+    if (page === 1) {
+      setAllProducts(data.data);
+    } else {
+      setAllProducts(prev => {
+        const ids = new Set(prev.map(p => p.id));
+        const newOnes = data.data.filter(p => !ids.has(p.id));
+        return [...prev, ...newOnes];
+      });
+    }
+  }, [data, page]);
 
   function handleSortToggle(field: SortField) {
     if (sortBy === field) {
@@ -57,7 +94,8 @@ export default function CatalogPage() {
     }
   }
 
-  const products = data?.data ?? [];
+  const products = allProducts;
+  const hasMore = (data?.hasMore ?? false) && !isLoading;
 
   return (
     <div className="flex flex-col min-h-full bg-[#F8FAFC]">
@@ -206,10 +244,10 @@ export default function CatalogPage() {
           />
         )}
 
-        {!isLoading && !isError && products.length > 0 && (
+        {!isError && products.length > 0 && (
           <>
             <p className="text-xs text-slate-400 mb-3">
-              {data?.total ?? products.length} מוצרים
+              {products.length} מוצרים{hasMore ? '+' : ''}
             </p>
             <div className="grid grid-cols-2 gap-3">
               {products.map((product) => (
@@ -220,6 +258,23 @@ export default function CatalogPage() {
                 />
               ))}
             </div>
+            {hasMore && (
+              <div className="flex justify-center mt-4 pb-2">
+                <button
+                  type="button"
+                  onClick={() => setPage(p => p + 1)}
+                  disabled={isLoading}
+                  className="px-6 py-2.5 rounded-xl bg-slate-800 text-slate-200 text-sm font-medium hover:bg-slate-700 active:bg-slate-600 transition-colors disabled:opacity-50"
+                >
+                  {isLoading ? 'טוען...' : 'טען עוד מוצרים'}
+                </button>
+              </div>
+            )}
+            {isLoading && page > 1 && (
+              <div className="flex justify-center mt-4">
+                <LoadingSpinner size="sm" />
+              </div>
+            )}
           </>
         )}
       </div>

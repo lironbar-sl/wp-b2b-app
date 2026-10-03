@@ -93,5 +93,11 @@ export async function GET(req: NextRequest) {
   const raw: ApiProduct[] = await upstream.json();
   const products = raw.filter(p => p.isActive).map(toClientProduct);
 
-  return NextResponse.json({ products, page: Number(page), pageSize: Number(pageSize) });
+  return NextResponse.json({
+    products,
+    page: Number(page),
+    pageSize: Number(pageSize),
+    total: products.length,
+    hasMore: raw.length >= Number(pageSize),
+  });
 }
