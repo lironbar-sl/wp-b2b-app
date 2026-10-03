@@ -45,8 +45,13 @@ export interface CatalogProduct {
 }
 
 function resolveCategory(p: ApiProduct): string {
-  // AirPods cases are filed under אוזניות by the supplier — reclassify them
-  if (p.category.name === 'אוזניות' && /\bcase\b/i.test(p.name)) return 'כיסויים';
+  const name = p.name;
+  // AirPods cases filed under אוזניות → כיסויים
+  if (p.category.name === 'אוזניות' && /\bcase\b/i.test(name)) return 'כיסויים';
+  // Apple Watch bands filed under שעונים חכמים → רצועות
+  if (p.category.name === 'שעונים חכמים' && /\bband\b/i.test(name)) return 'רצועות';
+  // Apple Watch cases/glass filed under שעונים חכמים → כיסויים
+  if (p.category.name === 'שעונים חכמים' && /\b(case|glass)\b/i.test(name)) return 'כיסויים';
   return p.category.name;
 }
 

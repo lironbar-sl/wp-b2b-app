@@ -29,9 +29,12 @@ export async function fetchProducts(
 ): Promise<PaginatedResponse<ProductListItem>> {
   const { search, category, page = 1, pageSize = 100 } = filters;
 
+  // Category filtering is done client-side after reclassification, so we
+  // always fetch all whitelisted products (server-side category pre-filter
+  // would miss re-classified items, e.g. AirPods cases reclassified from
+  // אוזניות → כיסויים, or watch bands from שעונים חכמים → רצועות).
   const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
   if (search) params.set('search', search);
-  if (category && category !== 'All') params.set('category', category);
 
   const res = await fetch(`/api/catalog?${params}`);
   if (!res.ok) throw new Error(`שגיאה בטעינת מוצרים: ${res.status}`);
@@ -40,7 +43,12 @@ export async function fetchProducts(
 
   let items = json.products;
 
-  // Client-side search fallback (the API may not support free-text search)
+  // Client-side category filter (applied AFTER server-side reclassification)
+  if (category && category !== 'All') {
+    items = items.filter(p => p.category === category);
+  }
+
+  // Client-side search fallback
   if (search) {
     const q = search.toLowerCase();
     items = items.filter(
@@ -50,10 +58,10 @@ export async function fetchProducts(
 
   return {
     data: items.map(toProductListItem),
-    total: json.total ?? items.length,
+    total: items.length,
     page,
     pageSize,
-    hasMore: json.hasMore ?? (items.length === pageSize),
+    hasMore: false,
   };
 }
 

@@ -72,13 +72,6 @@ export function ProductCard({ product, onClick, onAdd, justAdded }: ProductCardP
     onAdd();
   }
 
-  const stockColor =
-    (product.stockQuantity ?? 0) > 10
-      ? 'text-emerald-600'
-      : (product.stockQuantity ?? 0) > 0
-      ? 'text-amber-600'
-      : 'text-slate-400';
-
   return (
     <div
       onClick={onClick}
@@ -102,17 +95,15 @@ export function ProductCard({ product, onClick, onAdd, justAdded }: ProductCardP
 
       {/* Main info */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-slate-900 leading-snug truncate">
+        <p className="text-sm font-medium text-slate-900 leading-snug line-clamp-2">
           {product.name}
         </p>
         <div className="flex items-center gap-2 mt-0.5">
           <span className="text-[11px] text-slate-400">{product.category}</span>
-          {product.stockQuantity !== undefined && (
+          {product.stockQuantity === 0 && (
             <>
               <span className="text-slate-200">·</span>
-              <span className={`text-[11px] font-medium ${stockColor}`}>
-                {product.stockQuantity > 0 ? `${product.stockQuantity} במלאי` : 'אזל'}
-              </span>
+              <span className="text-[11px] font-medium text-slate-400">אזל</span>
             </>
           )}
         </div>
