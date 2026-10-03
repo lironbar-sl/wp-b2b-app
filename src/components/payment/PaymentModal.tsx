@@ -18,6 +18,7 @@ export function PaymentModal({ orderId, amount, onSuccess, onClose }: Props) {
   const [iframeUrl, setIframeUrl] = useState<string | null>(null);
   const [isDemo, setIsDemo] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [paid, setPaid] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -28,16 +29,22 @@ export function PaymentModal({ orderId, amount, onSuccess, onClose }: Props) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ orderId, amount }),
     })
-      .then(r => r.json())
-      .then(data => {
+      .then(async r => {
+        const data = await r.json();
+        if (!r.ok) throw new Error(data?.error ?? `שגיאת שרת ${r.status}`);
         if (data.mode === 'demo') {
           setIsDemo(true);
-        } else {
+        } else if (data.iframeUrl) {
           setIframeUrl(data.iframeUrl);
+        } else {
+          throw new Error('לא התקבל כתובת תשלום מהשרת');
         }
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err: unknown) => {
+        setFetchError(err instanceof Error ? err.message : 'שגיאה לא ידועה');
+        setLoading(false);
+      });
   }, [orderId, amount]);
 
   // Listen for postMessage from Tranzila success/fail page inside the iframe
@@ -139,7 +146,17 @@ export function PaymentModal({ orderId, amount, onSuccess, onClose }: Props) {
               style={{ height: 420 }}
             />
           ) : (
-            <p className="text-sm text-red-500 py-10">שגיאה בטעינת טופס תשלום</p>
+            <div className="flex flex-col items-center gap-3 px-6 py-10 text-center">
+              <p className="text-sm font-semibold text-red-500">שגיאה בטעינת טופס תשלום</p>
+              {fetchError && <p className="text-xs text-slate-400">{fetchError}</p>}
+              <button
+                type="button"
+                onClick={onClose}
+                className="mt-2 text-sm text-blue-500 underline"
+              >
+                סגור ונסה שוב
+              </button>
+            </div>
           )}
         </div>
       </div>

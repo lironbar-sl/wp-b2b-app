@@ -1,18 +1,24 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
 function FailContent() {
   const params = useSearchParams();
+  const router = useRouter();
   const orderId = params.get('orderId') ?? '';
 
   useEffect(() => {
     if (window.parent !== window) {
+      // Inside iframe — tell the parent frame
       window.parent.postMessage({ type: 'TRANZILA_FAIL', orderId }, '*');
+    } else {
+      // Top-frame redirect from Tranzila — go back to cart
+      const timer = setTimeout(() => router.replace('/cart'), 1500);
+      return () => clearTimeout(timer);
     }
-  }, [orderId]);
+  }, [orderId, router]);
 
   return (
     <div

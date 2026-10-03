@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { CartItem, SelectedVariant, DeliveryEstimate } from '../types';
 
 function generateId(): string {
@@ -32,7 +33,9 @@ function computeDerivedValues(items: CartItem[]) {
   };
 }
 
-export const useCartStore = create<CartState>((set, get) => ({
+export const useCartStore = create<CartState>()(
+  persist(
+    (set, get) => ({
   items: [],
   itemCount: 0,
   subtotal: 0,
@@ -94,7 +97,10 @@ export const useCartStore = create<CartState>((set, get) => ({
         : `${maxMin}–${maxMax} business days`;
     return { minDays: maxMin, maxDays: maxMax, label };
   },
-}));
+    }),
+    { name: 'wp-b2b-cart' }
+  )
+);
 
 // Selectors
 export const selectCartItems = (s: CartState) => s.items;
