@@ -6,6 +6,7 @@ import { ShoppingCart, Search } from 'lucide-react';
 import { useProducts } from '@/features/products/useProducts';
 import { useCartStore, selectCartCount } from '@/store/cartStore';
 import type { ProductListItem } from '@/types';
+import type { DeliveryEstimate } from '@/types';
 
 const PRODUCT_CATEGORIES = [
   'מכשירים', 'אוזניות', 'כיסויים', 'אביזרים',
@@ -31,6 +32,23 @@ const PAGE_SIZE = 100;
 export default function CatalogPage() {
   const router = useRouter();
   const cartCount = useCartStore(selectCartCount);
+  const addItem = useCartStore((s) => s.addItem);
+  const [justAddedId, setJustAddedId] = useState<string | null>(null);
+
+  function handleQuickAdd(product: ProductListItem) {
+    addItem({
+      productId: product.id,
+      productName: product.name,
+      productSku: product.sku,
+      imageUrl: undefined,
+      quantity: 1,
+      unitPrice: product.basePrice,
+      selectedVariants: [],
+      deliveryEstimate: product.deliveryEstimate as DeliveryEstimate,
+    });
+    setJustAddedId(product.id);
+    setTimeout(() => setJustAddedId(null), 1200);
+  }
 
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('מכשירים');
@@ -253,6 +271,8 @@ export default function CatalogPage() {
                   key={product.id}
                   product={product}
                   onClick={() => router.push(`/catalog/${product.id}`)}
+                  onAdd={() => handleQuickAdd(product)}
+                  justAdded={justAddedId === product.id}
                 />
               ))}
             </div>

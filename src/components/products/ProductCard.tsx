@@ -6,7 +6,9 @@ import type { ProductListItem } from '@/types';
 
 interface ProductCardProps {
   product: ProductListItem;
-  onClick: () => void;
+  onClick: () => void;        // navigate to detail
+  onAdd: () => void;          // add 1 unit directly to cart
+  justAdded?: boolean;        // flash feedback
 }
 
 function formatPrice(amount: number, currency: string): string {
@@ -62,12 +64,12 @@ function resolveImage(product: ProductListItem): string {
 
 const FALLBACK = 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=96&h=96&fit=crop&auto=format';
 
-export function ProductCard({ product, onClick }: ProductCardProps) {
+export function ProductCard({ product, onClick, onAdd, justAdded }: ProductCardProps) {
   const [imgSrc, setImgSrc] = useState(() => product.imageUrl ?? resolveImage(product));
 
   function handleAddClick(e: React.MouseEvent) {
     e.stopPropagation();
-    onClick();
+    onAdd();
   }
 
   const stockColor =
@@ -127,11 +129,22 @@ export function ProductCard({ product, onClick }: ProductCardProps) {
           type="button"
           onClick={handleAddClick}
           aria-label={`הוסף ${product.name} להזמנה`}
-          className="w-8 h-8 flex items-center justify-center bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-lg transition-colors flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={[
+            'w-8 h-8 flex items-center justify-center rounded-lg transition-colors flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500',
+            justAdded
+              ? 'bg-emerald-500 text-white'
+              : 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white',
+          ].join(' ')}
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
+          {justAdded ? (
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          ) : (
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+          )}
         </button>
       ) : (
         <div className="w-8 h-8 flex-shrink-0" />
