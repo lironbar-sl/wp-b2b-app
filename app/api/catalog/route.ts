@@ -48,15 +48,25 @@ function isWhitelisted(p: ApiProduct): boolean {
 function resolveCategory(p: ApiProduct): string {
   const name = p.name;
   const cat = p.category.name.trim();
-  // AirPods cases filed under אוזניות by Amazing Thing → כיסויים
-  if (cat === 'אוזניות' && /\bcase\b/i.test(name)) return 'כיסויים';
-  // Apple Watch bands → רצועות
+  const sup = p.supplier?.name ?? '';
+
+  // Brand categories take priority — browse by brand
+  if (sup === 'Amazing Thing') return 'Amazing Thing';
+  if (sup === 'pitaka') return 'Pitaka';
+
+  // Phones
+  if (cat.includes('מכשירים')) return 'מכשירים';
+
+  // Watch accessories
   if (cat === 'שעונים חכמים' && /\bband\b/i.test(name)) return 'רצועות';
-  // Apple Watch cases/glass → כיסויים
-  if (cat === 'שעונים חכמים' && /\b(case|glass)\b/i.test(name)) return 'כיסויים';
-  // Pitaka AirPods cases in כללי → כיסויים
-  if (cat === 'כללי' && p.supplier?.name === 'pitaka' && /airpod/i.test(name)) return 'כיסויים';
-  return cat;
+  if (cat === 'שעונים חכמים') return 'שעונים';
+
+  // Earphones (incl. AirPods filed under כללי by name)
+  if (cat === 'אוזניות') return 'אוזניות';
+  if (/airpod/i.test(name)) return 'אוזניות';
+
+  // Everything else (כיסויים, מטענים, כבלים, אביזרים, …)
+  return 'אביזרים נוספים';
 }
 
 function toClientProduct(p: ApiProduct): CatalogProduct {

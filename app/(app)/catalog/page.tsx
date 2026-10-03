@@ -9,8 +9,8 @@ import type { ProductListItem } from '@/types';
 import type { DeliveryEstimate } from '@/types';
 
 const PRODUCT_CATEGORIES = [
-  'מכשירים', 'אוזניות', 'כיסויים', 'אביזרים',
-  'שעונים חכמים', 'רצועות', 'מטענים', 'כבלים',
+  'מכשירים', 'שעונים', 'אוזניות', 'רצועות',
+  'Amazing Thing', 'Pitaka', 'אביזרים נוספים',
 ];
 import { ProductCard } from '@/components/products/ProductCard';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
