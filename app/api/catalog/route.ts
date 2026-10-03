@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { NEWORDER_API_URL, NEWORDER_API_TOKEN, MAIN_BRANCH_ID, calcB2BPrice } from '@/config/inventory';
+import { NEWORDER_API_URL, NEWORDER_API_TOKEN, MAIN_BRANCH_ID, calcB2BPrice, CATEGORY_NAME_TO_ID } from '@/config/inventory';
 
 export const dynamic = 'force-dynamic';
 
@@ -69,7 +69,10 @@ export async function GET(req: NextRequest) {
     branchId: String(MAIN_BRANCH_ID),
     stockMode: '1', // only products with stock > 0
   });
-  if (category) params.set('category', category);
+  if (category) {
+    const catId = CATEGORY_NAME_TO_ID[category];
+    if (catId) params.set('category', String(catId));
+  }
   if (search) params.set('search', search);
 
   const upstream = await fetch(

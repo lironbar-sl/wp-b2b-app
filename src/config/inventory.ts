@@ -18,6 +18,13 @@ export const MAIN_BRANCH_ID = 1;
  * TODO: Review these with Liron and adjust per category.
  * Current defaults: 1.3 = 30% margin above cost (before VAT).
  */
+export const CATEGORY_NAME_TO_ID: Record<string, number> = {
+  'כללי': 1, 'מעבדה': 2, 'מכשירים': 3, 'מכשירים ': 3,
+  'שעונים חכמים': 4, 'אוזניות': 5, 'אביזרים': 6, 'ציוד היקפי': 7,
+  'גיימינג': 8, 'רכב': 9, 'רמקולים': 10, 'מטענים': 11,
+  'כבלים': 12, 'כיסויים': 13, 'אביזרי laut': 14, 'אביזרי decoded': 15,
+};
+
 export const CATEGORY_MARGIN: Record<number, number> = {
   1:  1.3,  // כללי
   2:  1.4,  // מעבדה

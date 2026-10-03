@@ -5,7 +5,13 @@ import { useRouter } from 'next/navigation';
 import { ShoppingCart, Search } from 'lucide-react';
 import { useProducts } from '@/features/products/useProducts';
 import { useCartStore, selectCartCount } from '@/store/cartStore';
-import { PRODUCT_CATEGORIES } from '@/api/mockData';
+
+const PRODUCT_CATEGORIES = [
+  'All',
+  'כללי', 'מעבדה', 'מכשירים', 'שעונים חכמים', 'אוזניות',
+  'אביזרים', 'ציוד היקפי', 'גיימינג', 'רכב', 'רמקולים',
+  'מטענים', 'כבלים', 'כיסויים', 'אביזרי laut', 'אביזרי decoded',
+];
 import { ProductCard } from '@/components/products/ProductCard';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
