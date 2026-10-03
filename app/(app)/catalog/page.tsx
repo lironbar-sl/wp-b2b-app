@@ -202,7 +202,7 @@ export default function CatalogPage() {
       </div>
 
       {/* Product grid */}
-      <div className="flex-1 px-4 pt-4 pb-4">
+      <div className="flex-1 pt-2 pb-4">
         {isLoading && (
           <div className="flex justify-center py-16">
             <LoadingSpinner size="lg" />
@@ -246,10 +246,10 @@ export default function CatalogPage() {
 
         {!isError && products.length > 0 && (
           <>
-            <p className="text-xs text-slate-400 mb-3">
+            <p className="text-xs text-slate-400 px-4 pb-2">
               {products.length} מוצרים{hasMore ? '+' : ''}
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white border-t border-slate-100">
               {products.map((product) => (
                 <ProductCard
                   key={product.id}

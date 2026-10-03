@@ -2,24 +2,12 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Truck, ArrowLeft, CheckCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle } from 'lucide-react';
 import { useProduct } from '@/features/products/useProducts';
 import { useCartStore } from '@/store/cartStore';
-import { Badge } from '@/components/ui/Badge';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { QuantitySelector } from '@/components/ui/QuantitySelector';
 import type { SelectedVariant, ProductVariantGroup } from '@/types';
-
-function getCategoryEmoji(category: string): string {
-  const cat = category.toLowerCase();
-  if (cat.includes('safety')) return '⛑️';
-  if (cat.includes('clean')) return '🧴';
-  if (cat.includes('office')) return '📎';
-  if (cat.includes('packag')) return '📦';
-  if (cat.includes('cater') || cat.includes('coffee') || cat.includes('food')) return '☕';
-  if (cat.includes('furni')) return '🪑';
-  return '📦';
-}
 
 function formatPrice(amount: number, currency = 'ILS'): string {
   return new Intl.NumberFormat('he-IL', {
@@ -34,10 +22,9 @@ export default function ProductDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
 
-  const { data: product, isLoading } = useProduct(id);
+  const { data: product, isLoading, isError } = useProduct(id);
   const addItem = useCartStore((s) => s.addItem);
 
-  // Record<variantGroupId, optionId>
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState<number>(1);
   const [added, setAdded] = useState(false);
@@ -47,7 +34,7 @@ export default function ProductDetailPage() {
   const variantPriceModifier = useMemo(() => {
     if (!product) return 0;
     let total = 0;
-    for (const group of product.variantGroups) {
+    for (const group of (product.variantGroups ?? [])) {
       const selectedOptionId = selectedVariants[group.id];
       if (selectedOptionId) {
         const option = group.options.find((o: { id: string }) => o.id === selectedOptionId);
@@ -75,7 +62,7 @@ export default function ProductDetailPage() {
   function handleAddToCart() {
     if (!product || isOutOfStock) return;
 
-    const resolvedVariants: SelectedVariant[] = product.variantGroups
+    const resolvedVariants: SelectedVariant[] = (product.variantGroups ?? [])
       .filter((g: ProductVariantGroup) => selectedVariants[g.id])
       .map((g: ProductVariantGroup) => {
         const option = g.options.find((o) => o.id === selectedVariants[g.id])!;
@@ -92,7 +79,7 @@ export default function ProductDetailPage() {
       productId: product.id,
       productName: product.name,
       productSku: product.sku,
-      imageUrl: product.imageUrl,
+      imageUrl: undefined,
       quantity,
       unitPrice,
       selectedVariants: resolvedVariants,
@@ -108,14 +95,32 @@ export default function ProductDetailPage() {
   if (isLoading || !product) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-        <LoadingSpinner size="lg" />
+        {isError ? (
+          <div className="text-center px-6">
+            <p className="text-slate-600 font-medium">מוצר לא נמצא</p>
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="mt-4 text-sm text-blue-500 underline"
+            >
+              חזור לקטלוג
+            </button>
+          </div>
+        ) : (
+          <LoadingSpinner size="lg" />
+        )}
       </div>
     );
   }
 
-  const emoji = getCategoryEmoji(product.category);
   const minQty = product.minOrderQuantity ?? 1;
-  const maxQty = product.maxOrderQuantity ?? 999;
+  const maxQty = Math.max(product.maxOrderQuantity ?? 999, 1);
+  const stockColor =
+    (product.stockQuantity ?? 0) > 10
+      ? 'text-emerald-600'
+      : (product.stockQuantity ?? 0) > 0
+      ? 'text-amber-600'
+      : 'text-slate-400';
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] max-w-md mx-auto flex flex-col">
@@ -125,54 +130,51 @@ export default function ProductDetailPage() {
           type="button"
           onClick={() => router.back()}
           className="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 transition-colors"
-          aria-label="Go back"
+          aria-label="חזור"
         >
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
-        <h1 className="text-base font-semibold text-white truncate flex-1">פרטי מוצר</h1>
+        <h1 className="text-base font-semibold text-white truncate flex-1">{product.name}</h1>
       </div>
 
       {/* Scrollable body */}
       <div className="flex-1 overflow-y-auto pb-32">
-        {/* Hero image */}
-        <div className="bg-slate-100 h-48 flex items-center justify-center mx-4 mt-4 rounded-2xl">
-          <span className="text-[120px] leading-none select-none">{emoji}</span>
-        </div>
+        <div className="bg-white border-b border-slate-100 px-4 py-5 flex flex-col gap-1">
+          {/* Category + SKU */}
+          <p className="text-xs font-semibold text-[#3B82F6] uppercase tracking-widest">
+            {product.category}
+          </p>
+          <h2 className="text-xl font-bold text-slate-900 leading-snug">{product.name}</h2>
+          <p className="text-xs font-mono text-slate-400 tracking-wide">{product.sku}</p>
 
-        <div className="px-4 mt-5 flex flex-col gap-4">
-          {/* Category overline + name */}
-          <div>
-            <p className="text-xs font-semibold text-[#3B82F6] uppercase tracking-widest mb-1">
-              {product.category}
-            </p>
-            <h2 className="text-2xl font-bold text-slate-900 leading-snug">{product.name}</h2>
-            <p className="text-xs font-mono text-slate-400 mt-1 tracking-wide">{product.sku}</p>
-          </div>
-
-          {/* Price + stock badge */}
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-3xl font-bold text-slate-900">
+          {/* Price + stock */}
+          <div className="flex items-baseline justify-between mt-3">
+            <span className="text-3xl font-bold text-slate-900 tabular-nums">
               {formatPrice(unitPrice, product.currency)}
             </span>
-            <Badge status={product.inventoryStatus} />
+            <span className={`text-sm font-medium ${stockColor}`}>
+              {isOutOfStock ? 'אזל מהמלאי' : `${product.stockQuantity} במלאי`}
+            </span>
           </div>
+        </div>
 
+        <div className="px-4 mt-4 flex flex-col gap-4">
           {/* Description */}
-          <p className="text-sm text-slate-500 leading-relaxed">{product.description}</p>
+          {product.description && (
+            <p className="text-sm text-slate-500 leading-relaxed">{product.description}</p>
+          )}
 
           {/* Divider */}
-          <div className="h-px bg-slate-200" />
+          {(product.variantGroups ?? []).length > 0 && <div className="h-px bg-slate-200" />}
 
           {/* Variant groups */}
-          {product.variantGroups.length > 0 && (
+          {(product.variantGroups ?? []).length > 0 && (
             <div className="flex flex-col gap-5">
-              {product.variantGroups.map((group) => (
+              {(product.variantGroups ?? []).map((group) => (
                 <div key={group.id}>
                   <p className="text-sm font-semibold text-slate-700 mb-2">
                     {group.name}
-                    {group.required && (
-                      <span className="text-[#3B82F6] ml-0.5">*</span>
-                    )}
+                    {group.required && <span className="text-[#3B82F6] ml-0.5">*</span>}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {group.options.map((option) => {
@@ -206,7 +208,6 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
               ))}
-
               <div className="h-px bg-slate-200" />
             </div>
           )}
@@ -226,15 +227,6 @@ export default function ProductDetailPage() {
               </span>
             </div>
           </div>
-
-          {/* Delivery estimate */}
-          <div className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-3 border border-slate-200">
-            <Truck className="w-5 h-5 text-slate-400 flex-shrink-0" />
-            <div>
-              <p className="text-xs font-semibold text-slate-700">זמן אספקה משוער</p>
-              <p className="text-xs text-slate-500 mt-0.5">{product.deliveryEstimate.label}</p>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -245,7 +237,7 @@ export default function ProductDetailPage() {
           disabled={isOutOfStock || added}
           onClick={handleAddToCart}
           className={[
-            'w-full flex items-center justify-center gap-2.5 h-13 py-3.5 rounded-xl text-sm font-semibold transition-colors duration-150',
+            'w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-sm font-semibold transition-colors duration-150',
             'focus:outline-none focus:ring-2 focus:ring-blue-500',
             added
               ? 'bg-emerald-500 text-white cursor-default'
@@ -262,9 +254,7 @@ export default function ProductDetailPage() {
           ) : isOutOfStock ? (
             'אזל מהמלאי'
           ) : (
-            <>
-              הוסף להזמנה · {formatPrice(totalPrice, product.currency)}
-            </>
+            <>הוסף להזמנה · {formatPrice(totalPrice, product.currency)}</>
           )}
         </button>
       </div>

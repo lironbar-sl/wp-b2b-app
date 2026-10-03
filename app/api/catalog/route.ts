@@ -63,11 +63,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'API token not configured' }, { status: 503 });
   }
 
+  const stockModeParam = searchParams.get('stockMode') ?? '1';
   const params = new URLSearchParams({
     page_num: page,
     page_size: pageSize,
     branchId: String(MAIN_BRANCH_ID),
-    stockMode: '1', // only products with stock > 0
+    stockMode: stockModeParam,
   });
   if (category) {
     const catId = CATEGORY_NAME_TO_ID[category];

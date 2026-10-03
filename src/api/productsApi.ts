@@ -57,12 +57,12 @@ export async function fetchProducts(
 }
 
 export async function fetchProductById(id: string): Promise<Product> {
-  const res = await fetch(`/api/catalog?pageSize=500`);
+  const res = await fetch(`/api/catalog?pageSize=500&stockMode=0`);
   if (!res.ok) throw new Error('Product not found');
 
   const json = await res.json() as { products: CatalogProduct[] };
   const found = json.products.find(p => p.id === id);
-  if (!found) throw { code: 'NOT_FOUND', message: 'מוצר לא נמצא.' };
+  if (!found) throw new Error('מוצר לא נמצא.');
 
   return {
     id: found.id,
