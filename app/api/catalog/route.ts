@@ -1,14 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { NEWORDER_API_URL, NEWORDER_API_TOKEN, MAIN_BRANCH_ID, calcB2BPrice, CATEGORY_NAME_TO_ID, CATALOG_WHITELIST } from '@/config/inventory';
-
-function isWhitelisted(p: ApiProduct): boolean {
-  const cat = p.category?.name ?? '';
-  const sup = p.supplier?.name ?? '';
-  return (
-    CATALOG_WHITELIST.categoryIncludes.some(c => cat.includes(c)) ||
-    CATALOG_WHITELIST.supplierExact.includes(sup)
-  );
-}
+import { NEWORDER_API_URL, NEWORDER_API_TOKEN, MAIN_BRANCH_ID, calcB2BPrice, CATALOG_WHITELIST } from '@/config/inventory';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,9 +25,9 @@ export interface CatalogProduct {
   name: string;
   category: string;
   categoryId: number;
-  b2bPrice: number;      // what customer pays (costNoTax + margin + VAT)
-  costNoTax: number;     // raw cost — never sent to client
-  retailPrice: number;   // manufacturer/retail price (for reference)
+  b2bPrice: number;
+  costNoTax: number;
+  retailPrice: number;
   stock: number;
   inStock: boolean;
   description: string;
@@ -44,18 +35,26 @@ export interface CatalogProduct {
   supplier: string;
 }
 
+function isWhitelisted(p: ApiProduct): boolean {
+  const cat = p.category?.name?.trim() ?? '';
+  const sup = p.supplier?.name ?? '';
+  return (
+    CATALOG_WHITELIST.categoryIncludes.some(c => cat.includes(c)) ||
+    CATALOG_WHITELIST.supplierExact.includes(sup)
+  );
+}
+
 function resolveCategory(p: ApiProduct): string {
   const name = p.name;
   const cat = p.category.name.trim();
-  // AirPods cases filed under אוזניות → כיסויים
+  // AirPods cases filed under אוזניות by Amazing Thing → כיסויים
   if (cat === 'אוזניות' && /\bcase\b/i.test(name)) return 'כיסויים';
-  // Apple Watch bands filed under שעונים חכמים → רצועות
+  // Apple Watch bands → רצועות
   if (cat === 'שעונים חכמים' && /\bband\b/i.test(name)) return 'רצועות';
-  // Apple Watch cases/glass filed under שעונים חכמים → כיסויים
+  // Apple Watch cases/glass → כיסויים
   if (cat === 'שעונים חכמים' && /\b(case|glass)\b/i.test(name)) return 'כיסויים';
-  // Pitaka AirPods cases filed under כללי → כיסויים
+  // Pitaka AirPods cases in כללי → כיסויים
   if (cat === 'כללי' && p.supplier?.name === 'pitaka' && /airpod/i.test(name)) return 'כיסויים';
-  // Always trim trailing spaces from API category names
   return cat;
 }
 
@@ -72,57 +71,61 @@ function toClientProduct(p: ApiProduct): CatalogProduct {
     inStock: p.isStock && p.currentStock > 0,
     description: p.description,
     barcode: p.barcode,
-    supplier: p.supplier.name,
+    supplier: p.supplier?.name ?? '',
   };
 }
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const page = searchParams.get('page') ?? '1';
-  const pageSize = searchParams.get('pageSize') ?? '50';
-  const category = searchParams.get('category') ?? '';
-  const search = searchParams.get('search') ?? '';
+/** Fetch every page from neworderapi until exhausted. */
+async function fetchAllRaw(stockMode: string): Promise<ApiProduct[]> {
+  const PAGE_SIZE = 500;
+  const all: ApiProduct[] = [];
+  let pageNum = 1;
 
+  while (true) {
+    const params = new URLSearchParams({
+      page_num: String(pageNum),
+      page_size: String(PAGE_SIZE),
+      branchId: String(MAIN_BRANCH_ID),
+      stockMode,
+    });
+
+    const res = await fetch(`${NEWORDER_API_URL}/api/Products?${params}`, {
+      headers: { Authorization: `Bearer ${NEWORDER_API_TOKEN}` },
+      next: { revalidate: 300 },
+    });
+
+    if (!res.ok) throw new Error(`Upstream ${res.status}`);
+
+    const page: ApiProduct[] = await res.json();
+    all.push(...page);
+
+    // Stop when we get fewer items than PAGE_SIZE — no more pages
+    if (page.length < PAGE_SIZE) break;
+    pageNum++;
+  }
+
+  return all;
+}
+
+export async function GET(req: NextRequest) {
   if (!NEWORDER_API_TOKEN) {
     return NextResponse.json({ error: 'API token not configured' }, { status: 503 });
   }
 
-  const stockModeParam = searchParams.get('stockMode') ?? '1';
-  const params = new URLSearchParams({
-    page_num: page,
-    page_size: pageSize,
-    branchId: String(MAIN_BRANCH_ID),
-    stockMode: stockModeParam,
-  });
-  if (category) {
-    const catId = CATEGORY_NAME_TO_ID[category];
-    if (catId) params.set('category', String(catId));
-  }
-  if (search) params.set('search', search);
+  const { searchParams } = new URL(req.url);
+  const stockMode = searchParams.get('stockMode') ?? '1';
 
-  const upstream = await fetch(
-    `${NEWORDER_API_URL}/api/Products?${params}`,
-    {
-      headers: { Authorization: `Bearer ${NEWORDER_API_TOKEN}` },
-      next: { revalidate: 300 }, // cache 5 minutes
-    },
-  );
+  try {
+    const raw = await fetchAllRaw(stockMode);
+    const products = raw
+      .filter(p => p.isActive && isWhitelisted(p))
+      .map(toClientProduct);
 
-  if (!upstream.ok) {
+    return NextResponse.json({ products, total: products.length, hasMore: false });
+  } catch (err) {
     return NextResponse.json(
-      { error: `Upstream API error: ${upstream.status}` },
-      { status: upstream.status },
+      { error: err instanceof Error ? err.message : 'Upstream error' },
+      { status: 502 },
     );
   }
-
-  const raw: ApiProduct[] = await upstream.json();
-  const products = raw.filter(p => p.isActive && isWhitelisted(p)).map(toClientProduct);
-
-  return NextResponse.json({
-    products,
-    page: Number(page),
-    pageSize: Number(pageSize),
-    total: products.length,
-    hasMore: raw.length >= Number(pageSize),
-  });
 }
