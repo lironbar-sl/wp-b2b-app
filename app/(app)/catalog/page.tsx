@@ -8,10 +8,8 @@ import { useCartStore, selectCartCount } from '@/store/cartStore';
 import type { ProductListItem } from '@/types';
 
 const PRODUCT_CATEGORIES = [
-  'All',
-  'כללי', 'מעבדה', 'מכשירים', 'שעונים חכמים', 'אוזניות',
-  'אביזרים', 'ציוד היקפי', 'גיימינג', 'רכב', 'רמקולים',
-  'מטענים', 'כבלים', 'כיסויים', 'אביזרי laut', 'אביזרי decoded',
+  'מכשירים', 'אוזניות', 'כיסויים', 'אביזרים',
+  'שעונים חכמים', 'מטענים', 'כבלים',
 ];
 import { ProductCard } from '@/components/products/ProductCard';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
@@ -35,7 +33,7 @@ export default function CatalogPage() {
   const cartCount = useCartStore(selectCartCount);
 
   const [search, setSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [page, setPage] = useState(1);
@@ -45,7 +43,7 @@ export default function CatalogPage() {
   const filters = useMemo(
     () => ({
       search: search || undefined,
-      category: selectedCategory === 'All' ? undefined : selectedCategory,
+      category: selectedCategory || undefined,
       sortBy,
       sortDirection,
       page,
@@ -153,7 +151,7 @@ export default function CatalogPage() {
               <button
                 key={cat}
                 type="button"
-                onClick={() => setSelectedCategory(cat)}
+                onClick={() => setSelectedCategory(prev => prev === cat ? '' : cat)}
                 className={[
                   'flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors duration-150',
                   isActive
@@ -231,12 +229,12 @@ export default function CatalogPage() {
                 : 'אין מוצרים בקטגוריה זו.'
             }
             action={
-              search || selectedCategory !== 'All'
+              search || selectedCategory !== ''
                 ? {
                     label: 'נקה סינון',
                     onClick: () => {
                       setSearch('');
-                      setSelectedCategory('All');
+                      setSelectedCategory('');
                     },
                   }
                 : undefined
