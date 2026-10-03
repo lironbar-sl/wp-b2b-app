@@ -44,11 +44,17 @@ export interface CatalogProduct {
   supplier: string;
 }
 
+function resolveCategory(p: ApiProduct): string {
+  // AirPods cases are filed under אוזניות by the supplier — reclassify them
+  if (p.category.name === 'אוזניות' && /\bcase\b/i.test(p.name)) return 'כיסויים';
+  return p.category.name;
+}
+
 function toClientProduct(p: ApiProduct): CatalogProduct {
   return {
     id: p.id,
     name: p.name,
-    category: p.category.name,
+    category: resolveCategory(p),
     categoryId: p.category.id,
     b2bPrice: Math.ceil(calcB2BPrice(p.costNoTax, p.category.id) * 100) / 100,
     costNoTax: p.costNoTax,
