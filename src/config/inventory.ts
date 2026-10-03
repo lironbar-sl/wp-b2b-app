@@ -43,6 +43,16 @@ export const CATEGORY_MARGIN: Record<number, number> = {
   15: 1.3,  // אביזרי decoded
 };
 
+/**
+ * B2B catalog whitelist — only show products that match at least one rule.
+ * categoryIncludes: substring match on category name (handles trailing spaces)
+ * supplierExact: exact supplier name as it appears in the API
+ */
+export const CATALOG_WHITELIST = {
+  categoryIncludes: ['מכשירים', 'אוזניות'],
+  supplierExact: ['pitaka', 'Amazing Thing'],
+};
+
 const DEFAULT_MARGIN = 1.3;
 
 export function getMargin(categoryId: number): number {

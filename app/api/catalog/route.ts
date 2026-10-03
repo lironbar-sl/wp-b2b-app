@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { NEWORDER_API_URL, NEWORDER_API_TOKEN, MAIN_BRANCH_ID, calcB2BPrice, CATEGORY_NAME_TO_ID } from '@/config/inventory';
+import { NEWORDER_API_URL, NEWORDER_API_TOKEN, MAIN_BRANCH_ID, calcB2BPrice, CATEGORY_NAME_TO_ID, CATALOG_WHITELIST } from '@/config/inventory';
+
+function isWhitelisted(p: ApiProduct): boolean {
+  const cat = p.category?.name ?? '';
+  const sup = p.supplier?.name ?? '';
+  return (
+    CATALOG_WHITELIST.categoryIncludes.some(c => cat.includes(c)) ||
+    CATALOG_WHITELIST.supplierExact.includes(sup)
+  );
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -92,7 +101,7 @@ export async function GET(req: NextRequest) {
   }
 
   const raw: ApiProduct[] = await upstream.json();
-  const products = raw.filter(p => p.isActive).map(toClientProduct);
+  const products = raw.filter(p => p.isActive && isWhitelisted(p)).map(toClientProduct);
 
   return NextResponse.json({
     products,
