@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { buildTranzilaIframeUrl, TRANZILA_TERMINAL } from '@/config/payment';
+import { buildTranzilaIframeUrl, TRANZILA_TERMINAL, TRANZILA_PASSWORD } from '@/config/payment';
 
 export async function POST(req: NextRequest) {
   const { orderId, amount } = await req.json();
