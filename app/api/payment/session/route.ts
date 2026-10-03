@@ -9,8 +9,8 @@ export async function POST(req: NextRequest) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
-  if (!TRANZILA_TERMINAL) {
-    // Demo mode — no real credentials yet
+  if (!TRANZILA_TERMINAL || !TRANZILA_PASSWORD) {
+    // Demo mode — credentials not yet configured
     return NextResponse.json({
       mode: 'demo',
       iframeUrl: null,
@@ -18,12 +18,15 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  const tktEnabled = process.env.TRANZILA_TKT_ENABLED === 'true';
+
   const iframeUrl = buildTranzilaIframeUrl({
     orderId,
     amount,
     notifyUrl: `${appUrl}/api/payment/notify`,
     successUrl: `${appUrl}/payment/success?orderId=${orderId}`,
     failUrl: `${appUrl}/payment/fail?orderId=${orderId}`,
+    saveToken: tktEnabled,
   });
 
   return NextResponse.json({ mode: 'live', iframeUrl });
