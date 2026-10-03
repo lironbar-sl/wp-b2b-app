@@ -1,11 +1,14 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Truck, Trash2, ShoppingBag, Minus, Plus } from 'lucide-react';
+import { Truck, Trash2, ShoppingBag, Minus, Plus, CreditCard, ChevronLeft } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
+import { usePaymentStore } from '@/store/paymentStore';
 import { useSubmitOrder } from '@/features/orders/useOrders';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { AppShell } from '@/components/layout/AppShell';
+import { PaymentModal } from '@/components/payment/PaymentModal';
 import type { CartItem } from '@/types';
 
 function formatCurrency(amount: number): string {
@@ -126,28 +129,45 @@ export default function CartPage() {
   const removeItem = useCartStore((s) => s.removeItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const getDeliveryEstimate = useCartStore((s) => s.getDeliveryEstimate);
+  const clearCart = useCartStore((s) => s.clearCart);
+
+  const savedCard = usePaymentStore((s) => s.savedCard);
 
   const submitOrder = useSubmitOrder();
 
   const deliveryEstimate = getDeliveryEstimate();
   const uniqueItemCount = items.length;
 
-  const handleSubmit = async () => {
+  const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
+  const [showPayment, setShowPayment] = useState(false);
+
+  // Step 1: create the order, then open payment modal
+  const handleCheckout = async () => {
     try {
       const order = await submitOrder.mutateAsync({ items });
-      try {
-        localStorage.setItem('last_order_id', order.id);
-      } catch {
-        // ignore storage errors
-      }
-      router.push(`/orders/confirmation/${order.id}`);
-    } catch {
-      // error displayed below
-    }
+      try { localStorage.setItem('last_order_id', order.id); } catch { /* ignore */ }
+      setPendingOrderId(order.id);
+      setShowPayment(true);
+    } catch { /* error displayed below */ }
+  };
+
+  // Step 2: payment confirmed → go to tracking
+  const handlePaymentSuccess = () => {
+    setShowPayment(false);
+    clearCart();
+    router.push(`/orders/confirmation/${pendingOrderId}`);
   };
 
   return (
     <AppShell activeTab="cart">
+      {showPayment && pendingOrderId && (
+        <PaymentModal
+          orderId={pendingOrderId}
+          amount={subtotal}
+          onSuccess={handlePaymentSuccess}
+          onClose={() => setShowPayment(false)}
+        />
+      )}
       {/* Sticky header */}
       <div className="sticky top-0 z-30 bg-[#0F172A] px-4 pt-12 pb-4">
         <div className="flex items-center justify-between">
@@ -224,28 +244,47 @@ export default function CartPage() {
               </div>
             </div>
 
+            {/* Saved card strip */}
+            {savedCard && (
+              <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
+                <CreditCard className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-emerald-700">כרטיס שמור</p>
+                  <p className="text-xs text-emerald-600">**** **** **** {savedCard.last4}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => usePaymentStore.getState().clearSavedCard()}
+                  className="text-xs text-slate-400 hover:text-red-500"
+                >
+                  הסר
+                </button>
+              </div>
+            )}
+
             {/* Error message */}
             {submitOrder.isError && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-4">
                 <p className="text-sm font-semibold text-red-700">שליחת ההזמנה נכשלה</p>
                 <p className="text-xs text-red-600 mt-1">
-                  {(submitOrder.error as { message?: string })?.message ??
-                    'אנא נסה שוב.'}
+                  {(submitOrder.error as { message?: string })?.message ?? 'אנא נסה שוב.'}
                 </p>
               </div>
             )}
 
-            {/* Submit button */}
+            {/* Pay button */}
             <button
               type="button"
-              onClick={handleSubmit}
+              onClick={handleCheckout}
               disabled={submitOrder.isPending}
               className="w-full h-14 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-semibold text-base rounded-2xl flex items-center justify-center gap-2 transition-colors duration-150"
             >
-              {submitOrder.isPending && (
+              {submitOrder.isPending ? (
                 <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <CreditCard className="w-5 h-5" />
               )}
-              {submitOrder.isPending ? 'שולח...' : 'שלח הזמנה'}
+              {submitOrder.isPending ? 'מכין הזמנה...' : `שלם ${formatCurrency(subtotal)}`}
             </button>
           </>
         )}

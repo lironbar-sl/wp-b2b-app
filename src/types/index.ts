@@ -155,6 +155,16 @@ export interface Order {
   courierPhone?: string;
 }
 
+// ─── Payment ─────────────────────────────────────────────────────────────────
+
+export interface SavedCard {
+  token: string;       // Tranzila TKT token
+  last4: string;
+  expDate: string;     // MMYY
+  brand?: string;      // Visa / Mastercard etc.
+  savedAt: string;
+}
+
 // ─── API Shapes ───────────────────────────────────────────────────────────────
 
 export interface PaginatedResponse<T> {
