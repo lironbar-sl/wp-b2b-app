@@ -20,6 +20,7 @@ function toProductListItem(p: CatalogProduct): ProductListItem {
     stockQuantity: p.stock,
     deliveryEstimate: { minDays: 1, maxDays: 3, label: '1–3 ימי עסקים' },
     isActive: true,
+    supplier: p.supplier,
   };
 }
 

@@ -107,7 +107,9 @@ export interface ProductListItem
     | 'stockQuantity'
     | 'deliveryEstimate'
     | 'isActive'
-  > {}
+  > {
+  supplier?: string;
+}
 
 // ─── Cart ─────────────────────────────────────────────────────────────────────
 
