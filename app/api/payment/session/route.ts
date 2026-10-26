@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { buildTranzilaIframeRequest, TRANZILA_TERMINAL, type TranzilaCustomer } from '@/config/payment';
+import { expectedAmounts } from '../store';
 
 export async function POST(req: NextRequest) {
   const { orderId, amount, customer } = (await req.json()) as {
@@ -15,6 +16,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ mode: 'demo', demoAmount: amount });
   }
 
+  expectedAmounts.set(orderId, amount);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
   const id = encodeURIComponent(orderId);
 

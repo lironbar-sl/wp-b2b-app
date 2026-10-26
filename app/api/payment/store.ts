@@ -10,7 +10,10 @@ export interface PaymentResult {
 
 declare global {
   var __paymentResults: Map<string, PaymentResult> | undefined;
+  var __expectedAmounts: Map<string, number> | undefined;
 }
 
 if (!global.__paymentResults) global.__paymentResults = new Map();
+if (!global.__expectedAmounts) global.__expectedAmounts = new Map();
 export const paymentResults = global.__paymentResults;
+export const expectedAmounts = global.__expectedAmounts;
