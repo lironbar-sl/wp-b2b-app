@@ -2,6 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { X, CreditCard, CheckCircle } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
+
+interface IframeRequest {
+  action: string;
+  fields: Record<string, string>;
+}
 
 interface Props {
   orderId: string;
@@ -15,29 +21,42 @@ function formatCurrency(n: number) {
 }
 
 export function PaymentModal({ orderId, amount, onSuccess, onClose }: Props) {
-  const [iframeUrl, setIframeUrl] = useState<string | null>(null);
+  const user = useAuthStore((s) => s.user);
+  const [iframeRequest, setIframeRequest] = useState<IframeRequest | null>(null);
   const [isDemo, setIsDemo] = useState(false);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [paid, setPaid] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  // Fetch session (iframe URL or demo flag)
   useEffect(() => {
+    const customer = user
+      ? {
+          company: user.companyName,
+          contact: `${user.firstName} ${user.lastName}`.trim(),
+          email: user.email,
+          phone: user.phone,
+          address: user.deliveryAddress,
+          city: user.deliveryCity,
+          businessId: user.businessId,
+        }
+      : {};
+
     fetch('/api/payment/session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderId, amount }),
+      body: JSON.stringify({ orderId, amount, customer }),
     })
       .then(async r => {
         const data = await r.json();
         if (!r.ok) throw new Error(data?.error ?? `שגיאת שרת ${r.status}`);
         if (data.mode === 'demo') {
           setIsDemo(true);
-        } else if (data.iframeUrl) {
-          setIframeUrl(data.iframeUrl);
+        } else if (data.action && data.fields) {
+          setIframeRequest({ action: data.action, fields: data.fields });
         } else {
-          throw new Error('לא התקבל כתובת תשלום מהשרת');
+          throw new Error('לא התקבלה כתובת תשלום מהשרת');
         }
         setLoading(false);
       })
@@ -45,7 +64,12 @@ export function PaymentModal({ orderId, amount, onSuccess, onClose }: Props) {
         setFetchError(err instanceof Error ? err.message : 'שגיאה לא ידועה');
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId, amount]);
+
+  useEffect(() => {
+    if (iframeRequest) formRef.current?.submit();
+  }, [iframeRequest]);
 
   // Listen for postMessage from Tranzila success/fail page inside the iframe
   useEffect(() => {
@@ -126,7 +150,7 @@ export function PaymentModal({ orderId, amount, onSuccess, onClose }: Props) {
               <div>
                 <p className="font-bold text-slate-800 mb-1">מצב הדגמה</p>
                 <p className="text-sm text-slate-500">
-                  הוסף <code className="bg-slate-100 px-1 rounded text-xs">TRANZILA_PASSWORD</code> ב-Vercel
+                  הוסף <code className="bg-slate-100 px-1 rounded text-xs">TRANZILA_TERMINAL</code> ב-Vercel
                   כדי לעבור לחיוב אמיתי
                 </p>
               </div>
@@ -138,13 +162,27 @@ export function PaymentModal({ orderId, amount, onSuccess, onClose }: Props) {
                 סמלץ תשלום מוצלח
               </button>
             </div>
-          ) : iframeUrl ? (
-            <iframe
-              src={iframeUrl}
-              title="טופס תשלום מאובטח"
-              className="w-full border-0"
-              style={{ height: 420 }}
-            />
+          ) : iframeRequest ? (
+            <>
+              <form
+                ref={formRef}
+                action={iframeRequest.action}
+                method="POST"
+                target="tranzila-iframe"
+                className="hidden"
+              >
+                {Object.entries(iframeRequest.fields).map(([name, value]) => (
+                  <input key={name} type="hidden" name={name} value={value} />
+                ))}
+              </form>
+              <iframe
+                name="tranzila-iframe"
+                title="טופס תשלום מאובטח"
+                className="w-full border-0"
+                style={{ height: 520 }}
+                allow="payment"
+              />
+            </>
           ) : (
             <div className="flex flex-col items-center gap-3 px-6 py-10 text-center">
               <p className="text-sm font-semibold text-red-500">שגיאה בטעינת טופס תשלום</p>

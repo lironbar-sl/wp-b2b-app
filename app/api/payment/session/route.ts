@@ -1,33 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { buildTranzilaIframeUrl, TRANZILA_TERMINAL } from '@/config/payment';
+import { buildTranzilaIframeRequest, TRANZILA_TERMINAL, type TranzilaCustomer } from '@/config/payment';
 
 export async function POST(req: NextRequest) {
-  const { orderId, amount } = await req.json();
-  if (!orderId || !amount) {
+  const { orderId, amount, customer } = (await req.json()) as {
+    orderId?: string;
+    amount?: number;
+    customer?: TranzilaCustomer;
+  };
+  if (!orderId || !amount || amount <= 0) {
     return NextResponse.json({ error: 'Missing orderId or amount' }, { status: 400 });
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
-
   if (!TRANZILA_TERMINAL) {
-    // Demo mode — terminal name not configured
-    return NextResponse.json({
-      mode: 'demo',
-      iframeUrl: null,
-      demoAmount: amount,
-    });
+    return NextResponse.json({ mode: 'demo', demoAmount: amount });
   }
 
-  const tktEnabled = process.env.TRANZILA_TKT_ENABLED === 'true';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  const id = encodeURIComponent(orderId);
 
-  const iframeUrl = buildTranzilaIframeUrl({
-    orderId,
+  const request = buildTranzilaIframeRequest({
     amount,
-    notifyUrl: `${appUrl}/api/payment/notify`,
-    successUrl: `${appUrl}/payment/success?orderId=${orderId}`,
-    failUrl: `${appUrl}/payment/fail?orderId=${orderId}`,
-    saveToken: tktEnabled,
+    customer: customer ?? {},
+    description: `הזמנה ${orderId}`,
+    notifyUrl: `${appUrl}/api/payment/notify?orderId=${id}`,
+    successUrl: `${appUrl}/api/payment/return?result=success&orderId=${id}`,
+    failUrl: `${appUrl}/api/payment/return?result=fail&orderId=${id}`,
   });
 
-  return NextResponse.json({ mode: 'live', iframeUrl });
+  return NextResponse.json({ mode: 'live', ...request });
 }

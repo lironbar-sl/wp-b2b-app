@@ -1,5 +1,6 @@
 export interface PaymentResult {
   orderId: string;
+  transactionId: string;
   token: string;
   last4: string;
   expDate: string;
