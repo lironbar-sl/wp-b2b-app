@@ -1,13 +1,13 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Truck, CheckCircle } from 'lucide-react';
 import { useOrder } from '@/features/orders/useOrders';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 function formatCurrency(amount: number, currency = 'ILS'): string {
@@ -35,7 +35,7 @@ function getProductEmoji(name: string): string {
 
 export default function OrderConfirmationPage({ params }: PageProps) {
   const router = useRouter();
-  const { id: paramId } = use(params);
+  const { id: paramId } = params;
 
   // Fall back to localStorage if id param is missing
   const [resolvedId, setResolvedId] = useState<string>(paramId);

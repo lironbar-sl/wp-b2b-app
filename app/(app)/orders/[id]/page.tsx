@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use, useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Truck } from 'lucide-react';
 import { useOrder } from '@/features/orders/useOrders';
@@ -13,7 +13,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { OrderStatus } from '@/types';
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 const STATUS_STEPS: OrderStatus[] = [
@@ -67,7 +67,7 @@ function getProductEmoji(name: string): string {
 export default function OrderDetailPage({ params }: PageProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { id } = use(params);
+  const { id } = params;
 
   const { data: order, isLoading, isError, error, refetch } = useOrder(id);
 

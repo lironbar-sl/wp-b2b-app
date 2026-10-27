@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, MapPin, CheckCircle } from 'lucide-react';
 import { useOrder } from '@/features/orders/useOrders';
@@ -8,7 +8,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { WAREHOUSE_ADDRESS, ETA_BUFFER_MINUTES } from '@/config/couriers';
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 interface DispatchStatus {
@@ -105,7 +105,7 @@ function CircularCountdown({ remainingMs, totalMs, delivered }: {
 
 export default function TrackingPage({ params }: PageProps) {
   const router = useRouter();
-  const { id } = use(params);
+  const { id } = params;
 
   const { data: order } = useOrder(id);
   const dispatchFiredRef = useRef(false);
