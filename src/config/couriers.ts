@@ -13,3 +13,6 @@ export const COURIERS: Courier[] = [
 export const WAREHOUSE_ADDRESS = 'נחלת בנימין 65, תל אביב';
 export const BASE_ETA_MINUTES = 28; // זמן בסיס מהמחסן עד אזור תל אביב
 export const ETA_BUFFER_MINUTES = 12; // מקדם ביטחון שמוצג ללקוח
+
+// מה שהלקוח רואה כזמן אספקה בעגלה ובהזמנה (שליח עד הדלת, לא ימי עסקים)
+export const DELIVERY_ESTIMATE_LABEL = '30–60 דקות מאישור השליח';

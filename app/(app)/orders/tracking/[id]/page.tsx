@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, MapPin, CheckCircle } from 'lucide-react';
 import { useOrder } from '@/features/orders/useOrders';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { PixelCourierSearch } from '@/components/tracking/PixelCourierSearch';
 import { WAREHOUSE_ADDRESS, ETA_BUFFER_MINUTES } from '@/config/couriers';
 
 interface PageProps {
@@ -203,27 +204,7 @@ export default function TrackingPage({ params }: PageProps) {
         {!order ? (
           <LoadingSpinner size="lg" />
         ) : isSearching ? (
-          <div className="flex flex-col items-center gap-5">
-            <div className="relative w-28 h-28">
-              <div
-                className="absolute inset-0 rounded-full border-4 border-blue-500/20"
-                style={{ borderTopColor: '#3B82F6', animation: 'spin 1.2s linear infinite' }}
-              />
-              <div className="absolute inset-4 rounded-full bg-white/5 flex items-center justify-center">
-                <span className="text-3xl">🛵</span>
-              </div>
-            </div>
-            <div className="text-center">
-              <p className="text-white text-lg font-bold mb-1">מחפש שליח...</p>
-              <p className="text-slate-400 text-sm">שולח הודעות לשליחים הזמינים</p>
-            </div>
-            <div className="flex gap-1.5 mt-1">
-              {[0, 1, 2].map(i => (
-                <div key={i} className="w-2 h-2 rounded-full bg-blue-400"
-                  style={{ animation: `bounce 1s ease-in-out infinite`, animationDelay: `${i * 0.2}s` }} />
-              ))}
-            </div>
-          </div>
+          <PixelCourierSearch since={order.submittedAt} />
         ) : (
           <div className="flex flex-col items-center gap-3 w-full">
             <CircularCountdown remainingMs={remainingMs} totalMs={totalMs} delivered={isDelivered} />

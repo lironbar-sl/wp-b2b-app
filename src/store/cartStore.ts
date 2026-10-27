@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { CartItem, SelectedVariant, DeliveryEstimate } from '../types';
+import { DELIVERY_ESTIMATE_LABEL } from '@/config/couriers';
 
 function generateId(): string {
   return `cart-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -91,10 +92,7 @@ export const useCartStore = create<CartState>()(
     }
     const maxMin = Math.max(...items.map(i => i.deliveryEstimate.minDays));
     const maxMax = Math.max(...items.map(i => i.deliveryEstimate.maxDays));
-    const label =
-      maxMin === maxMax
-        ? `${maxMin} ימי עסקים`
-        : `${maxMin}–${maxMax} ימי עסקים`;
+    const label = DELIVERY_ESTIMATE_LABEL;
     return { minDays: maxMin, maxDays: maxMax, label };
   },
     }),

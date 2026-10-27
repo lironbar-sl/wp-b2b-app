@@ -1,6 +1,7 @@
 import { mockRequest, mockSlowRequest } from './client';
 import { MOCK_ORDERS } from './mockData';
 import type { Order, CartItem, DeliveryEstimate, OrderStatus } from '../types';
+import { DELIVERY_ESTIMATE_LABEL } from '@/config/couriers';
 
 // Orders created in this browser — kept in localStorage so a refresh doesn't lose them
 // (until orders are submitted to the real backend).
@@ -71,7 +72,7 @@ export async function submitOrder(
     const deliveryEstimate: DeliveryEstimate = {
       minDays: maxMin,
       maxDays: maxMax,
-      label: maxMin === maxMax ? `${maxMin} ימי עסקים` : `${maxMin}–${maxMax} ימי עסקים`,
+      label: DELIVERY_ESTIMATE_LABEL,
     };
 
     const order: Order = {

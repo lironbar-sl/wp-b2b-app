@@ -6,6 +6,7 @@ import type {
   DeliveryEstimate,
 } from '../types';
 import type { CatalogProduct } from '../../app/api/catalog/route';
+import { DELIVERY_ESTIMATE_LABEL } from '@/config/couriers';
 
 function toProductListItem(p: CatalogProduct): ProductListItem {
   return {
@@ -18,7 +19,7 @@ function toProductListItem(p: CatalogProduct): ProductListItem {
     currency: 'ILS',
     inventoryStatus: p.stock > 10 ? 'in_stock' : p.stock > 0 ? 'low_stock' : 'out_of_stock',
     stockQuantity: p.stock,
-    deliveryEstimate: { minDays: 1, maxDays: 3, label: '1–3 ימי עסקים' },
+    deliveryEstimate: { minDays: 1, maxDays: 3, label: DELIVERY_ESTIMATE_LABEL },
     isActive: true,
     supplier: p.supplier,
   };
@@ -85,7 +86,7 @@ export async function fetchProductById(id: string): Promise<Product> {
     inventoryStatus: found.stock > 10 ? 'in_stock' : found.stock > 0 ? 'low_stock' : 'out_of_stock',
     stockQuantity: found.stock,
     variantGroups: [],
-    deliveryEstimate: { minDays: 1, maxDays: 3, label: '1–3 ימי עסקים' },
+    deliveryEstimate: { minDays: 1, maxDays: 3, label: DELIVERY_ESTIMATE_LABEL },
     tags: [found.category],
     isActive: true,
     minOrderQuantity: 1,
@@ -103,6 +104,6 @@ export async function calculateDeliveryEstimate(
   let maxDays = 3;
   if (quantity > 100) { minDays += 1; maxDays += 1; }
   if (quantity > 500) { minDays += 1; maxDays += 2; }
-  const label = `${minDays}–${maxDays} ימי עסקים`;
+  const label = DELIVERY_ESTIMATE_LABEL;
   return { minDays, maxDays, label };
 }
