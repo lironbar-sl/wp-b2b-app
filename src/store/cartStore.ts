@@ -93,8 +93,8 @@ export const useCartStore = create<CartState>()(
     const maxMax = Math.max(...items.map(i => i.deliveryEstimate.maxDays));
     const label =
       maxMin === maxMax
-        ? `${maxMin} business day${maxMin !== 1 ? 's' : ''}`
-        : `${maxMin}–${maxMax} business days`;
+        ? `${maxMin} ימי עסקים`
+        : `${maxMin}–${maxMax} ימי עסקים`;
     return { minDays: maxMin, maxDays: maxMax, label };
   },
     }),

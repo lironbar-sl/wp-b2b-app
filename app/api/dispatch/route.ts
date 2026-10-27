@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import twilio from 'twilio';
 import { nanoid } from 'nanoid';
-import { jobs, getJobByOrderId } from '@/lib/jobStore';
+import { createJob } from '@/lib/jobStore';
+import { getPaymentResult } from '../payment/store';
+import { TRANZILA_TERMINAL } from '@/config/payment';
 import { COURIERS, WAREHOUSE_ADDRESS, BASE_ETA_MINUTES } from '@/config/couriers';
 
 export async function POST(req: NextRequest) {
@@ -12,14 +14,14 @@ export async function POST(req: NextRequest) {
     totalAmount: number;
   };
 
-  // Idempotent — don't create duplicate jobs
-  const existing = getJobByOrderId(orderId);
-  if (existing) {
-    return NextResponse.json({ token: existing.createdAt, status: 'already_dispatched' });
+  // Only paid orders go out to couriers (skipped in demo mode, when no terminal is set).
+  if (TRANZILA_TERMINAL && !(await getPaymentResult(orderId))) {
+    return NextResponse.json({ status: 'unpaid' }, { status: 402 });
   }
 
+  // Idempotent — don't create duplicate jobs
   const token = nanoid(16);
-  jobs.set(token, {
+  const created = await createJob(token, {
     orderId,
     orderNumber,
     itemCount,
@@ -30,6 +32,9 @@ export async function POST(req: NextRequest) {
     acceptedAt: null,
     createdAt: new Date().toISOString(),
   });
+  if (!created) {
+    return NextResponse.json({ status: 'already_dispatched' });
+  }
 
   // Send Twilio messages
   const sid  = process.env.TWILIO_ACCOUNT_SID;

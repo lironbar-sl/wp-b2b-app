@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { X, CreditCard, CheckCircle } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
@@ -29,6 +29,16 @@ export function PaymentModal({ orderId, amount, onSuccess, onClose }: Props) {
   const [paid, setPaid] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const doneRef = useRef(false);
+
+  // Success can arrive from both the iframe message and the status poll — handle it once.
+  const completePayment = useCallback(() => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    if (pollRef.current) clearInterval(pollRef.current);
+    setPaid(true);
+    setTimeout(onSuccess, 1200);
+  }, [onSuccess]);
 
   useEffect(() => {
     const customer = user
@@ -74,9 +84,9 @@ export function PaymentModal({ orderId, amount, onSuccess, onClose }: Props) {
   // Listen for postMessage from Tranzila success/fail page inside the iframe
   useEffect(() => {
     function onMessage(e: MessageEvent) {
+      if (e.origin !== window.location.origin) return;
       if (e.data?.type === 'TRANZILA_SUCCESS' && e.data?.orderId === orderId) {
-        setPaid(true);
-        setTimeout(onSuccess, 1200);
+        completePayment();
       }
       if (e.data?.type === 'TRANZILA_FAIL') {
         onClose();
@@ -84,7 +94,7 @@ export function PaymentModal({ orderId, amount, onSuccess, onClose }: Props) {
     }
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-  }, [orderId, onSuccess, onClose]);
+  }, [orderId, completePayment, onClose]);
 
   // Poll for payment confirmation (fallback for webhook flow)
   useEffect(() => {
@@ -93,14 +103,10 @@ export function PaymentModal({ orderId, amount, onSuccess, onClose }: Props) {
       const res = await fetch(`/api/payment/status?orderId=${orderId}`).catch(() => null);
       if (!res?.ok) return;
       const data = await res.json();
-      if (data.paid) {
-        clearInterval(pollRef.current!);
-        setPaid(true);
-        setTimeout(onSuccess, 1200);
-      }
+      if (data.paid) completePayment();
     }, 3000);
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
-  }, [orderId, isDemo, onSuccess]);
+  }, [orderId, isDemo, completePayment]);
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'rgba(0,0,0,0.7)' }}>
@@ -156,7 +162,7 @@ export function PaymentModal({ orderId, amount, onSuccess, onClose }: Props) {
               </div>
               <button
                 type="button"
-                onClick={() => { setPaid(true); setTimeout(onSuccess, 800); }}
+                onClick={completePayment}
                 className="w-full py-3.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-2xl"
               >
                 סמלץ תשלום מוצלח

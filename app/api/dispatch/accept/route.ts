@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { jobs } from '@/lib/jobStore';
+import { acceptJob, getJob } from '@/lib/jobStore';
 import { BASE_ETA_MINUTES } from '@/config/couriers';
 
 export async function GET(req: NextRequest) {
@@ -9,24 +9,15 @@ export async function GET(req: NextRequest) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://wp-b2b.vercel.app';
 
-  if (!token) {
+  if (!token || !(await getJob(token))) {
     return NextResponse.redirect(`${appUrl}/dispatch/taken`);
   }
 
-  const job = jobs.get(token);
+  // Atomic — the first courier to click wins
+  const job = await acceptJob(token, courierName, BASE_ETA_MINUTES);
   if (!job) {
-    return NextResponse.redirect(`${appUrl}/dispatch/taken`);
-  }
-
-  if (job.acceptedAt) {
-    // Already taken by someone else
     return NextResponse.redirect(`${appUrl}/dispatch/taken?name=${encodeURIComponent(courierName)}`);
   }
-
-  // Mark as accepted — atomic in Node.js single thread
-  job.courierName = courierName;
-  job.etaMinutes = BASE_ETA_MINUTES;
-  job.acceptedAt = new Date().toISOString();
 
   return NextResponse.redirect(
     `${appUrl}/dispatch/accepted?order=${encodeURIComponent(job.orderNumber)}&name=${encodeURIComponent(courierName)}`

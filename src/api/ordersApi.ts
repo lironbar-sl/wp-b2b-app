@@ -2,8 +2,24 @@ import { mockRequest, mockSlowRequest } from './client';
 import { MOCK_ORDERS } from './mockData';
 import type { Order, CartItem, DeliveryEstimate, OrderStatus } from '../types';
 
-// In-memory store for orders created during the session
-const sessionOrders: Order[] = [];
+// Orders created in this browser — kept in localStorage so a refresh doesn't lose them
+// (until orders are submitted to the real backend).
+const SESSION_ORDERS_KEY = 'wp-b2b-orders';
+
+function loadSessionOrders(): Order[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    return JSON.parse(localStorage.getItem(SESSION_ORDERS_KEY) ?? '[]') as Order[];
+  } catch {
+    return [];
+  }
+}
+
+function saveSessionOrders() {
+  try { localStorage.setItem(SESSION_ORDERS_KEY, JSON.stringify(sessionOrders)); } catch { /* ignore */ }
+}
+
+const sessionOrders: Order[] = loadSessionOrders();
 
 function getAllOrders(customerId: string): Order[] {
   const seed = MOCK_ORDERS.filter(o => o.customerId === customerId);
@@ -55,7 +71,7 @@ export async function submitOrder(
     const deliveryEstimate: DeliveryEstimate = {
       minDays: maxMin,
       maxDays: maxMax,
-      label: maxMin === maxMax ? `${maxMin} business days` : `${maxMin}–${maxMax} business days`,
+      label: maxMin === maxMax ? `${maxMin} ימי עסקים` : `${maxMin}–${maxMax} ימי עסקים`,
     };
 
     const order: Order = {
@@ -75,6 +91,7 @@ export async function submitOrder(
     };
 
     sessionOrders.push(order);
+    saveSessionOrders();
     return order;
   });
 }
@@ -98,6 +115,7 @@ export async function triggerDispatch(orderId: string): Promise<void> {
   order.etaMinutes = etaMinutes;
   order.dispatchedAt = new Date().toISOString();
   order.updatedAt = new Date().toISOString();
+  saveSessionOrders();
 }
 
 // TODO (manager/admin): add approveOrder, updateOrderStatus, fetchAllOrders (paginated) endpoints
@@ -111,6 +129,7 @@ export async function cancelOrder(orderId: string): Promise<Order> {
     }
     order.status = 'cancelled';
     order.updatedAt = new Date().toISOString();
+    saveSessionOrders();
     return order;
   });
 }

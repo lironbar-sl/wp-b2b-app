@@ -1,3 +1,5 @@
+import { kvGet, kvSet } from '@/lib/kv';
+
 export interface PaymentResult {
   orderId: string;
   transactionId: string;
@@ -8,12 +10,14 @@ export interface PaymentResult {
   paidAt: string;
 }
 
-declare global {
-  var __paymentResults: Map<string, PaymentResult> | undefined;
-  var __expectedAmounts: Map<string, number> | undefined;
-}
+const expectedKey = (orderId: string) => `payment:expected:${orderId}`;
+const resultKey = (orderId: string) => `payment:result:${orderId}`;
 
-if (!global.__paymentResults) global.__paymentResults = new Map();
-if (!global.__expectedAmounts) global.__expectedAmounts = new Map();
-export const paymentResults = global.__paymentResults;
-export const expectedAmounts = global.__expectedAmounts;
+export const setExpectedAmount = (orderId: string, amount: number) =>
+  kvSet(expectedKey(orderId), amount, 60 * 60 * 24);
+
+export const getExpectedAmount = (orderId: string) => kvGet<number>(expectedKey(orderId));
+
+export const savePaymentResult = (result: PaymentResult) => kvSet(resultKey(result.orderId), result);
+
+export const getPaymentResult = (orderId: string) => kvGet<PaymentResult>(resultKey(orderId));
