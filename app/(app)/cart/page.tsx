@@ -139,14 +139,17 @@ export default function CartPage() {
   const uniqueItemCount = items.length;
 
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
+  const [pendingAmount, setPendingAmount] = useState(0);
   const [showPayment, setShowPayment] = useState(false);
 
   // Step 1: create the order, then open payment modal
   const handleCheckout = async () => {
     try {
+      const amount = subtotal;
       const order = await submitOrder.mutateAsync({ items });
       try { localStorage.setItem('last_order_id', order.id); } catch { /* ignore */ }
       setPendingOrderId(order.id);
+      setPendingAmount(amount);
       setShowPayment(true);
     } catch { /* error displayed below */ }
   };
@@ -163,7 +166,7 @@ export default function CartPage() {
       {showPayment && pendingOrderId && (
         <PaymentModal
           orderId={pendingOrderId}
-          amount={subtotal}
+          amount={pendingAmount}
           onSuccess={handlePaymentSuccess}
           onClose={() => setShowPayment(false)}
         />
