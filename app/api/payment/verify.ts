@@ -30,8 +30,9 @@ export async function verifyAndRecordPayment(
   const transactionId = body.index ?? body.transaction_id ?? '';
   if (isTranzilaApiConfigured()) {
     const txn = transactionId ? await getTransaction(TRANZILA_TERMINAL, Number(transactionId)) : null;
+    // The transactions API reports amount in agorot (e.g. '5273' for ₪52.73).
     const approved =
-      txn && Number(txn.processor_response_code) === 0 && sameAmount(txn.amount, expected);
+      txn && Number(txn.processor_response_code) === 0 && sameAmount(Number(txn.amount) / 100, expected);
     if (!approved) {
       console.error('[payment] Tranzila verification failed', { orderId, transactionId, txn });
       return null;
